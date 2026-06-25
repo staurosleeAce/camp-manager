@@ -275,11 +275,24 @@ function renderBatchSelect(){
 }
 function switchBatch(id){currentBatch=id;renderStats();renderTable()}
 function addBatch(){
-  var n=prompt('新梯次名稱：','第'+(data.order.length+1)+'梯');if(!n)return;
-  var id='batch_'+Date.now();data.order.push(id);data.batches[id]={name:n,records:[],nextSeq:1};currentBatch=id;saveData();renderBatchSelect();renderStats();renderTable()
+  var m=document.getElementById('modalOverlay');var c=document.getElementById('modalContent');
+  c.innerHTML='<h2>新增梯次</h2><div class="field"><label>梯次名稱</label><input id="batchNameInput" placeholder="請輸入梯次名稱，例：2026暑假第一梯"></div><div class="btn-row"><button class="btn btn-primary" onclick="confirmAddBatch()">確認新增</button><button class="btn btn-outline" onclick="closeModal()">取消</button></div>';
+  m.classList.add('show');setTimeout(function(){var el=document.getElementById('batchNameInput');if(el)el.focus()},100)
+}
+function confirmAddBatch(){
+  var n=document.getElementById('batchNameInput').value.trim();if(!n){alert('請輸入梯次名稱');return}
+  var id='batch_'+Date.now();data.order.push(id);data.batches[id]={name:n,records:[],nextSeq:1};currentBatch=id;closeModal();saveData();renderBatchSelect();renderStats();renderTable()
 }
 function renameBatch(){
-  if(!currentBatch)return;var b=data.batches[currentBatch];var n=prompt('重新命名：',b.name);if(!n||n===b.name)return;b.name=n;saveData();renderBatchSelect()
+  if(!currentBatch)return;var b=data.batches[currentBatch];
+  var m=document.getElementById('modalOverlay');var c=document.getElementById('modalContent');
+  c.innerHTML='<h2>重新命名</h2><div class="field"><label>梯次名稱</label><input id="batchNameInput" value="'+b.name+'"></div><div class="btn-row"><button class="btn btn-primary" onclick="confirmRenameBatch()">確認</button><button class="btn btn-outline" onclick="closeModal()">取消</button></div>';
+  m.classList.add('show');setTimeout(function(){var el=document.getElementById('batchNameInput');if(el){el.focus();el.select()}},100)
+}
+function confirmRenameBatch(){
+  if(!currentBatch)return;var b=data.batches[currentBatch];
+  var n=document.getElementById('batchNameInput').value.trim();if(!n){alert('請輸入名稱');return}
+  b.name=n;closeModal();saveData();renderBatchSelect()
 }
 function deleteBatch(){
   if(!currentBatch||data.order.length<=1){alert('至少保留一個梯次');return}
