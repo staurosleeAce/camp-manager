@@ -291,8 +291,7 @@ function renderStats(){
   var r=getRecords(currentBatch);
   var total=r.filter(function(x){return x.trialAccount&&x.trialAccount.trim()}).length;
   document.getElementById('statsRow').innerHTML=
-    '<div class="stat-card"><div class="num">'+r.length+'</div><div class="label">總筆數</div></div>'+
-    '<div class="stat-card"><div class="num">'+total+'</div><div class="label">學員數(有帳號)</div></div>'+
+    '<div class="stat-card"><div class="num">'+total+'</div><div class="label">學員數</div></div>'+
     '<div class="stat-card"><div class="num">'+r.filter(function(x){return x.purchase==='已購買'}).length+'</div><div class="label">已購買</div></div>'+
     '<div class="stat-card"><div class="num">'+r.filter(function(x){return x.intention==='高'}).length+'</div><div class="label">高意願</div></div>'+
     '<div class="stat-card"><div class="num">'+r.filter(function(x){return x.d7==='✓'||x.d7===true}).length+'</div><div class="label">D7完成</div></div>'
