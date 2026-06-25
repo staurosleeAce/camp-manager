@@ -8,10 +8,11 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI','Noto Sans TC',sans-serif}
 body{background:#f0f2f5;min-height:100vh}
-.app{max-width:1400px;margin:0 auto;padding:16px}
+.app{max-width:1440px;margin:0 auto;padding:16px}
 .header{background:#fff;border-radius:12px;padding:16px 24px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 1px 3px rgba(0,0,0,0.08)}
 .header h1{font-size:1.3rem;color:#1a1a2e}
 .header h1 span{font-size:0.8rem;color:#888;font-weight:400}
+.header-actions{display:flex;gap:8px;align-items:center}
 .toolbar{background:#fff;border-radius:12px;padding:12px 16px;margin-bottom:16px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;box-shadow:0 1px 3px rgba(0,0,0,0.08)}
 .toolbar .btn{padding:6px 14px;border-radius:8px;border:none;cursor:pointer;font-size:0.85rem;transition:all .2s;font-weight:500}
 .btn-primary{background:#4361ee;color:#fff}
@@ -25,19 +26,20 @@ body{background:#f0f2f5;min-height:100vh}
 .btn-outline{background:transparent;color:#555;border:1px solid #ddd}
 .btn-outline:hover{background:#f5f5f5}
 .btn-sm{padding:4px 10px;font-size:0.8rem}
+.btn-purple{background:#7c3aed;color:#fff}
+.btn-purple:hover{background:#6d28d9}
 .batch-select{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 .batch-select select{padding:6px 10px;border-radius:8px;border:1px solid #ddd;font-size:0.85rem;background:#fff}
 .table-wrap{background:#fff;border-radius:12px;overflow:auto;box-shadow:0 1px 3px rgba(0,0,0,0.08)}
-table{width:100%;border-collapse:collapse;font-size:0.82rem;min-width:1200px}
+table{width:100%;border-collapse:collapse;font-size:0.82rem;min-width:1300px}
 th{background:#f8f9fa;color:#555;font-weight:600;padding:10px 8px;text-align:left;white-space:nowrap;border-bottom:2px solid #e8e8e8;position:sticky;top:0;z-index:1}
 td{padding:8px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
 tr:hover td{background:#f8f9ff}
 tr.selected td{background:#e8ecff}
-td input,td select,td textarea{width:100%;padding:4px 6px;border:1px solid #ddd;border-radius:6px;font-size:0.8rem;background:#fff;transition:border .2s}
+td input,td select,td textarea{width:100%;padding:4px 6px;border:1px solid #ddd;border-radius:6px;font-size:0.8rem;background:#fff}
 td input:focus,td select:focus,td textarea:focus{outline:none;border-color:#4361ee}
 td textarea{height:48px;resize:vertical}
 td input[type=checkbox]{width:18px;height:18px;cursor:pointer;accent-color:#4361ee}
-.days-grid{display:flex;gap:2px}
 .status-badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:0.7rem;font-weight:500}
 .status-high{background:#d1fae5;color:#059669}
 .status-mid{background:#fef3c7;color:#d97706}
@@ -58,9 +60,11 @@ td input[type=checkbox]{width:18px;height:18px;cursor:pointer;accent-color:#4361
 .btn-save:hover{background:#a7f3d0}
 .btn-cancel{background:#f3f4f6;color:#6b7280}
 .btn-cancel:hover{background:#e5e7eb}
+.btn-read{background:#ede9fe;color:#7c3aed}
+.btn-read:hover{background:#ddd6fe}
 .modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);z-index:100;justify-content:center;align-items:center}
 .modal-overlay.show{display:flex}
-.modal{background:#fff;border-radius:16px;padding:24px;width:90%;max-width:520px;max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.2)}
+.modal{background:#fff;border-radius:16px;padding:24px;width:90%;max-width:560px;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.2)}
 .modal h2{font-size:1.1rem;margin-bottom:16px;color:#1a1a2e}
 .modal .field{margin-bottom:12px}
 .modal .field label{display:block;font-size:0.8rem;color:#666;margin-bottom:4px;font-weight:500}
@@ -74,7 +78,7 @@ td input[type=checkbox]{width:18px;height:18px;cursor:pointer;accent-color:#4361
 .stat-card .label{font-size:0.75rem;color:#888;margin-top:2px}
 .search-input{padding:6px 12px;border:1px solid #ddd;border-radius:8px;font-size:0.85rem;flex:1;min-width:150px;max-width:250px}
 .search-input:focus{outline:none;border-color:#4361ee}
-.import-area{display:none;margin-top:8px;padding:12px;background:#f9f9f9;border-radius:8px}
+.import-area{display:none;padding:12px;background:#f9f9f9;border-radius:8px;margin-bottom:16px;border:1px solid #eee}
 .import-area.show{display:block}
 .import-area textarea{width:100%;height:100px;border:1px solid #ddd;border-radius:8px;padding:8px;font-size:0.8rem;font-family:monospace}
 .file-input-wrap{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
@@ -83,14 +87,27 @@ td input[type=checkbox]{width:18px;height:18px;cursor:pointer;accent-color:#4361
 .import-preview table{min-width:auto;font-size:0.75rem}
 .import-preview td,.import-preview th{padding:4px 8px;white-space:nowrap}
 .import-preview th{background:#f5f5f5}
+.reader-link{color:#7c3aed;cursor:pointer;text-decoration:underline dotted;font-weight:500}
+.reader-link:hover{color:#6d28d9}
+.reading-modal{max-width:95vw;width:1200px;height:85vh;display:flex;flex-direction:column}
+.reading-modal iframe{flex:1;border:none;border-radius:8px;background:#fff}
+.reading-modal .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.reading-modal .modal-header h2{font-size:1rem;margin:0}
+.reading-modal .modal-header .close-btn{background:transparent;border:none;font-size:1.5rem;cursor:pointer;color:#888;padding:4px 8px}
+.reading-modal .modal-header .close-btn:hover{color:#333}
+.settings-icon{background:transparent;border:none;font-size:1.2rem;cursor:pointer;padding:4px 8px;border-radius:8px}
+.settings-icon:hover{background:#f0f0f0}
 @media(max-width:768px){.header{flex-direction:column;gap:8px;text-align:center}.toolbar{flex-direction:column;align-items:stretch}.search-input{max-width:none}}
 </style>
 </head>
 <body>
 <div class="app">
   <div class="header">
-    <h1>7日英語閱讀口說營 管理平台</h1>
-    <div style="font-size:0.8rem;color:#888" id="dataInfo">資料儲存於本機瀏覽器</div>
+    <div><h1>7日英語閱讀口說營 管理平台</h1></div>
+    <div class="header-actions">
+      <span style="font-size:0.8rem;color:#888" id="dataInfo">...</span>
+      <button class="settings-icon" onclick="showSettings()" title="系統設定">⚙️</button>
+    </div>
   </div>
   <div class="stats" id="statsRow"></div>
   <div class="toolbar">
@@ -112,7 +129,6 @@ td input[type=checkbox]{width:18px;height:18px;cursor:pointer;accent-color:#4361
       <button class="btn btn-outline btn-sm" onclick="showImportTab('csv')" id="tabCsvBtn">CSV 貼上</button>
       <button class="btn btn-outline btn-sm" onclick="showImportTab('excel')" id="tabExcelBtn">Excel 上傳</button>
     </div>
-
     <div id="importCsvPane">
       <p style="font-size:0.8rem;color:#666;margin-bottom:6px">貼上 CSV 內容（第一列為標題）</p>
       <textarea id="importText" placeholder="序號,購買,家長姓名,LINE暱稱,..."></textarea>
@@ -121,7 +137,6 @@ td input[type=checkbox]{width:18px;height:18px;cursor:pointer;accent-color:#4361
         <button class="btn btn-outline btn-sm" onclick="closeImport()">取消</button>
       </div>
     </div>
-
     <div id="importExcelPane" style="display:none">
       <p style="font-size:0.8rem;color:#666;margin-bottom:6px">上傳 Excel 檔案 (.xlsx / .xls / .csv)</p>
       <div class="file-input-wrap">
@@ -149,6 +164,46 @@ td input[type=checkbox]{width:18px;height:18px;cursor:pointer;accent-color:#4361
   </div>
 </div>
 
+<!-- Settings Modal -->
+<div class="modal-overlay" id="settingsOverlay">
+  <div class="modal" style="max-width:500px">
+    <h2>⚙️ 系統設定</h2>
+    <div class="field">
+      <label>閱讀管理系統網址</label>
+      <input id="settingReaderUrl" placeholder="https://new-readmanager.ieng365.com/">
+    </div>
+    <div class="field">
+      <label>登入帳號</label>
+      <input id="settingReaderAccount" placeholder="stanley">
+    </div>
+    <div class="field">
+      <label>登入密碼</label>
+      <input id="settingReaderPassword" type="password" placeholder="********">
+    </div>
+    <p style="font-size:0.75rem;color:#999;margin-bottom:12px">設定後，點擊學員「體驗帳號」即可開啟閱讀管理系統查詢該學員數據</p>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="saveSettings()">儲存設定</button>
+      <button class="btn btn-outline" onclick="closeSettings()">取消</button>
+    </div>
+  </div>
+</div>
+
+<!-- Reading Data Modal (iframe) -->
+<div class="modal-overlay" id="readingOverlay">
+  <div class="modal reading-modal">
+    <div class="modal-header">
+      <h2>📖 閱讀數據查詢：<span id="readingAccountLabel"></span></h2>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span style="font-size:0.75rem;color:#888">未登入？</span>
+        <button class="btn btn-sm btn-primary" onclick="openReaderTab()" title="在新分頁開啟">🔗 新分頁</button>
+        <button class="close-btn" onclick="closeReading()">✕</button>
+      </div>
+    </div>
+    <iframe id="readerIframe" sandbox="allow-scripts allow-forms allow-same-origin" style="width:100%;height:100%;border-radius:8px"></iframe>
+  </div>
+</div>
+
+<!-- Add/Edit Modal -->
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal" id="modalContent"></div>
 </div>
@@ -156,10 +211,10 @@ td input[type=checkbox]{width:18px;height:18px;cursor:pointer;accent-color:#4361
 <script>
 var FIELDS = [
   {key:'seq',label:'序號',type:'auto',width:50},
+  {key:'trialAccount',label:'體驗帳號',type:'link',width:110},
   {key:'purchase',label:'購買',type:'select',width:80,opts:['','已購買','未購買','待確認']},
   {key:'parentName',label:'家長姓名',type:'text',width:90},
   {key:'lineName',label:'LINE暱稱',type:'text',width:90},
-  {key:'trialAccount',label:'體驗帳號',type:'text',width:100},
   {key:'phone',label:'連絡電話',type:'text',width:110},
   {key:'referrer',label:'推薦人',type:'text',width:90},
   {key:'childName',label:'孩子英文名+姓',type:'text',width:110},
@@ -168,20 +223,16 @@ var FIELDS = [
   {key:'callRecord',label:'電聯紀錄',type:'textarea',width:130},
   {key:'intention',label:'購買意願',type:'select',width:80,opts:['','高','中','低','未確認']},
   {key:'note',label:'備註',type:'textarea',width:120},
-  {key:'d1',label:'D1',type:'day',width:36},
-  {key:'d2',label:'D2',type:'day',width:36},
-  {key:'d3',label:'D3',type:'day',width:36},
-  {key:'d4',label:'D4',type:'day',width:36},
-  {key:'d5',label:'D5',type:'day',width:36},
-  {key:'d6',label:'D6',type:'day',width:36},
-  {key:'d7',label:'D7',type:'day',width:36},
+  {key:'d1',label:'D1',type:'day',width:36},{key:'d2',label:'D2',type:'day',width:36},{key:'d3',label:'D3',type:'day',width:36},{key:'d4',label:'D4',type:'day',width:36},{key:'d5',label:'D5',type:'day',width:36},{key:'d6',label:'D6',type:'day',width:36},{key:'d7',label:'D7',type:'day',width:36},
   {key:'readingDays',label:'閱讀天數',type:'number',width:70},
   {key:'col21',label:'備註2',type:'textarea',width:100},
-  {key:'_actions',label:'操作',type:'actions',width:90}
+  {key:'_actions',label:'操作',type:'actions',width:110}
 ];
 
 var KEY = 'camp7_data';
+var SET_KEY = 'camp7_settings';
 var data = loadData();
+var settings = loadSettings();
 var currentBatch = null;
 var editingId = null;
 var excelData = null;
@@ -190,6 +241,11 @@ function loadData(){
   try{var r=localStorage.getItem(KEY);return r?JSON.parse(r):{batches:{},order:[]}}catch(e){return{batches:{},order:[]}}
 }
 function saveData(){localStorage.setItem(KEY,JSON.stringify(data));updateInfo()}
+function loadSettings(){
+  try{var r=localStorage.getItem(SET_KEY);return r?JSON.parse(r):{readerUrl:'https://new-readmanager.ieng365.com',readerAccount:'',readerPassword:''}}catch(e){return{readerUrl:'https://new-readmanager.ieng365.com',readerAccount:'',readerPassword:''}}
+}
+function saveSettingsToStore(){localStorage.setItem(SET_KEY,JSON.stringify(settings))}
+
 function getBatchList(){return data.order.map(function(id){return{id:id,name:data.batches[id]?data.batches[id].name:id}})}
 function getRecords(batchId){if(!data.batches[batchId])data.batches[batchId]={name:batchId,records:[],nextSeq:1};return data.batches[batchId].records}
 
@@ -202,12 +258,10 @@ function updateInfo(){
   var t=0;data.order.forEach(function(i){t+=getRecords(i).length});
   document.getElementById('dataInfo').textContent='共 '+data.order.length+' 梯次 / '+t+' 筆學員 (本機儲存)'
 }
-
 function renderBatchSelect(){
   var sel=document.getElementById('batchSelect');sel.innerHTML='';
   getBatchList().forEach(function(b){var o=document.createElement('option');o.value=b.id;o.textContent=b.name;if(b.id===currentBatch)o.selected=true;sel.appendChild(o)})
 }
-
 function switchBatch(id){currentBatch=id;renderStats();renderTable()}
 function addBatch(){
   var n=prompt('新梯次名稱：','第'+(data.order.length+1)+'梯');if(!n)return;
@@ -222,7 +276,6 @@ function deleteBatch(){
   var idx=data.order.indexOf(currentBatch);delete data.batches[currentBatch];data.order.splice(idx,1);
   currentBatch=data.order[Math.min(idx,data.order.length-1)];saveData();renderBatchSelect();renderStats();renderTable()
 }
-
 function renderStats(){
   var r=getRecords(currentBatch);
   document.getElementById('statsRow').innerHTML=
@@ -231,7 +284,6 @@ function renderStats(){
     '<div class="stat-card"><div class="num">'+r.filter(function(x){return x.intention==='高'}).length+'</div><div class="label">高意願</div></div>'+
     '<div class="stat-card"><div class="num">'+r.filter(function(x){return x.d7==='✓'||x.d7===true}).length+'</div><div class="label">D7完成</div></div>'
 }
-
 function getFullIdx(fi){
   var all=getRecords(currentBatch);var kw=document.getElementById('searchInput').value.trim().toLowerCase();
   if(!kw)return fi;
@@ -259,6 +311,12 @@ function renderTable(){
         if(isEdit){b+='<button class="btn-save" onclick="saveRow('+idx+')">💾</button><button class="btn-cancel" onclick="cancelEdit()">✕</button>'}
         else{b+='<button class="btn-edit" onclick="editRow('+idx+')">✏️</button><button class="btn-del" onclick="deleteRow('+idx+')">🗑</button>'}
         b+='</td>';return
+      }
+      if(f.type==='link'){
+        var v=r[f.key]||'';
+        if(isEdit){b+='<td><input value="'+v.replace(/"/g,'&quot;')+'" onchange="updateField('+idx+',\''+f.key+'\',this.value)"></td>'}
+        else{b+='<td>'+(v?'<span class="reader-link" onclick="openReader(\''+v.replace(/'/g,"\\'")+'\')">'+v+'</span>':'─')+'</td>'}
+        return
       }
       if(f.type==='day'){
         var val=r[f.key]===true||r[f.key]==='✓';
@@ -301,9 +359,52 @@ function setDay(idx,key,val){var r=getRecords(currentBatch);if(idx>=0&&idx<r.len
 function batchend(){saveData();renderStats()}
 function editRow(idx){editingId=idx;renderTable()}
 function cancelEdit(){editingId=null;renderTable()}
-function saveRow(idx){editingId=null;renderTable();saveData()}
+function saveRow(idx){editingId=null;saveData();renderTable()}
 function deleteRow(idx){if(!confirm('確定刪除？'))return;var r=getRecords(currentBatch);if(idx<0||idx>=r.length)return;r.splice(idx,1);batchend();renderTable()}
 
+// ===== Reading System Integration =====
+function openReader(account){
+  if(!account)return;
+  document.getElementById('readingAccountLabel').textContent=account;
+  var url=settings.readerUrl||'https://new-readmanager.ieng365.com';
+  // Try iframe first
+  var iframe=document.getElementById('readerIframe');
+  iframe.src=url+'/studentTotalRead/search?loginName='+encodeURIComponent(account);
+  document.getElementById('readingOverlay').classList.add('show');
+}
+
+function openReaderTab(){
+  var account=document.getElementById('readingAccountLabel').textContent;
+  var url=settings.readerUrl||'https://new-readmanager.ieng365.com';
+  window.open(url+'/studentTotalRead/search?loginName='+encodeURIComponent(account),'_blank');
+}
+
+function closeReading(){
+  document.getElementById('readingOverlay').classList.remove('show');
+  document.getElementById('readerIframe').src='about:blank';
+}
+
+function showSettings(){
+  document.getElementById('settingReaderUrl').value=settings.readerUrl||'https://new-readmanager.ieng365.com';
+  document.getElementById('settingReaderAccount').value=settings.readerAccount||'';
+  document.getElementById('settingReaderPassword').value=settings.readerPassword||'';
+  document.getElementById('settingsOverlay').classList.add('show');
+}
+
+function saveSettings(){
+  settings.readerUrl=document.getElementById('settingReaderUrl').value.trim();
+  settings.readerAccount=document.getElementById('settingReaderAccount').value.trim();
+  settings.readerPassword=document.getElementById('settingReaderPassword').value;
+  saveSettingsToStore();
+  alert('設定已儲存');
+  document.getElementById('settingsOverlay').classList.remove('show');
+}
+
+function closeSettings(){
+  document.getElementById('settingsOverlay').classList.remove('show');
+}
+
+// ===== Modal =====
 function showAddModal(){
   var m=document.getElementById('modalOverlay');var c=document.getElementById('modalContent');
   var h='<h2>新增學員</h2>';
@@ -312,7 +413,8 @@ function showAddModal(){
     h+='<div class="field"><label>'+f.label+'</label>';
     if(f.type==='select'){h+='<select id="add_'+f.key+'"><option value="">─</option>';f.opts.forEach(function(o){h+='<option value="'+o+'">'+o+'</option>'});h+='</select>'}
     else if(f.type==='textarea'){h+='<textarea id="add_'+f.key+'"></textarea>'}
-    else{h+='<input id="add_'+f.key+'" type="'+(f.type==='number'?'number':'text')+'">'}
+    else if(f.type==='link'){h+='<input id="add_'+f.key+'" type="text" placeholder="閱讀系統帳號">'}
+    else{h+='<input id="add_'+f.key+'" type="text">'}
     h+='</div>'
   });
   h+='<div class="btn-row"><button class="btn btn-primary" onclick="confirmAdd()">確認新增</button><button class="btn btn-outline" onclick="closeModal()">取消</button></div>';
@@ -325,11 +427,14 @@ function confirmAdd(){
 }
 function closeModal(){document.getElementById('modalOverlay').classList.remove('show')}
 document.getElementById('modalOverlay').onclick=function(e){if(e.target===this)closeModal()}
+document.getElementById('readingOverlay').onclick=function(e){if(e.target===this)closeReading()}
+document.getElementById('settingsOverlay').onclick=function(e){if(e.target===this)closeSettings()}
 
+// ===== Import/Export =====
 function toggleImport(){
   var area=document.getElementById('importArea');
   area.classList.toggle('show');
-  if(!area.classList.contains('show')){closeImport()}
+  if(!area.classList.contains('show'))closeImport()
 }
 function closeImport(){document.getElementById('importArea').classList.remove('show');document.getElementById('importCsvPane').style.display='';document.getElementById('importExcelPane').style.display='none'}
 function showImportTab(tab){
@@ -337,10 +442,7 @@ function showImportTab(tab){
   document.getElementById('importExcelPane').style.display=tab==='excel'?'':'none'
 }
 
-// ===== Excel Import =====
-var parsedExcelData=null;
-var excelMapping=[];
-
+var parsedExcelData=null;var excelMapping=[];
 function handleExcelFile(evt){
   var file=evt.target.files[0];if(!file)return;
   document.getElementById('excelStatus').textContent='讀取中...';
@@ -354,176 +456,80 @@ function handleExcelFile(evt){
       parsedExcelData=json;
       if(json.length===0){document.getElementById('excelStatus').textContent='檔案無資料';return}
       document.getElementById('excelStatus').textContent='找到 '+json.length+' 列資料';
-      showExcelPreview(json);
-      showExcelMapping(json);
-    }catch(err){
-      document.getElementById('excelStatus').textContent='讀取失敗：'+err.message;
-    }
+      showExcelPreview(json);showExcelMapping(json);
+    }catch(err){document.getElementById('excelStatus').textContent='讀取失敗：'+err.message}
   };
   reader.readAsArrayBuffer(file)
 }
-
 function showExcelPreview(json){
-  var div=document.getElementById('excelPreview');
-  if(json.length===0){div.innerHTML='';return}
-  var keys=Object.keys(json[0]);
-  var h='<table><tr>'+keys.map(function(k){return '<th>'+k+'</th>'}).join('')+'</tr>';
+  var div=document.getElementById('excelPreview');if(json.length===0){div.innerHTML='';return}
+  var keys=Object.keys(json[0]);var h='<table><tr>'+keys.map(function(k){return '<th>'+k+'</th>'}).join('')+'</tr>';
   var max=Math.min(json.length,10);
-  for(var i=0;i<max;i++){
-    h+='<tr>'+keys.map(function(k){return '<td>'+(json[i][k]||'')+'</td>'}).join('')+'</tr>'
-  }
+  for(var i=0;i<max;i++){h+='<tr>'+keys.map(function(k){return '<td>'+(json[i][k]||'')+'</td>'}).join('')+'</tr>'}
   if(json.length>10)h+='<tr><td colspan="'+keys.length+'" style="color:#999">...共 '+json.length+' 列</td></tr>';
   h+='</table>';div.innerHTML=h
 }
-
 function showExcelMapping(json){
-  var div=document.getElementById('excelMapping');
-  var excelKeys=Object.keys(json[0]);
-  var fieldMap=[];
-  // Auto-detect mapping
-  var keywords={
-    parentName:['家長姓名','家長','父母','姓名','名字','家長名稱'],
-    lineName:['LINE','line','暱稱','line名稱'],
-    trialAccount:['體驗帳號','帳號','體驗','trial','account'],
-    phone:['連絡電話','電話','手機','phone','tel','聯絡電話','手機號碼'],
-    referrer:['推薦人','推薦','介紹人','referrer'],
-    childName:['孩子英文名','英文名','小孩英文','學生英文','child','英文名字','姓名+姓'],
-    childAge:['孩子年齡','年齡','age','歲','小孩年齡','學生年齡'],
-    appointment:['預約時間','預約','時間','預約日期','appointment'],
-    callRecord:['電聯紀錄','電聯','紀錄','聯繫紀錄','通話紀錄'],
-    intention:['購買意願','意願','購買意向','intention'],
-    purchase:['購買','是否購買','訂購','purchase'],
-    note:['備註','note','備注','註記'],
-    readingDays:['閱讀天數','天數','閱讀','reading'],
-    d1:['D1','d1','Day1','day1'],
-    d2:['D2','d2','Day2','day2'],
-    d3:['D3','d3','Day3','day3'],
-    d4:['D4','d4','Day4','day4'],
-    d5:['D5','d5','Day5','day5'],
-    d6:['D6','d6','Day6','day6'],
-    d7:['D7','d7','Day7','day7'],
-    col21:['備註2','column21','其他']
-  };
-  excelKeys.forEach(function(ek){
-    var matched=false;
-    for(var field in keywords){
-      if(fieldMap.some(function(fm){return fm.field===field}))continue;
-      for(var k=0;k<keywords[field].length;k++){
-        if(ek.indexOf(keywords[field][k])!==-1||keywords[field][k].indexOf(ek)!==-1){
-          fieldMap.push({excelKey:ek,field:field});matched=true;break
-        }
-      }
+  var div=document.getElementById('excelMapping');var excelKeys=Object.keys(json[0]);var fieldMap=[];
+  var keywords={parentName:['家長姓名','家長','父母','姓名','名字'],lineName:['LINE','line','暱稱'],trialAccount:['體驗帳號','帳號','體驗','trial','account','系統帳號','studentLoginName','loginName'],phone:['連絡電話','電話','手機','phone','tel','聯絡電話'],referrer:['推薦人','推薦'],childName:['孩子英文名','英文名','studentName','學生姓名','姓名','孩子'],childAge:['孩子年齡','年齡','age','歲'],appointment:['預約時間','預約','時間'],callRecord:['電聯紀錄','電聯'],intention:['購買意願','意願'],purchase:['購買','訂購'],note:['備註','note'],readingDays:['閱讀天數','天數'],d1:['D1','d1'],d2:['D2','d2'],d3:['D3','d3'],d4:['D4','d4'],d5:['D5','d5'],d6:['D6','d6'],d7:['D7','d7'],col21:['備註2','其他']};
+  excelKeys.forEach(function(ek){var matched=false;
+    for(var field in keywords){if(fieldMap.some(function(fm){return fm.field===field}))continue;
+      for(var k=0;k<keywords[field].length;k++){if(ek.indexOf(keywords[field][k])!==-1||keywords[field][k].indexOf(ek)!==-1){fieldMap.push({excelKey:ek,field:field});matched=true;break}}
       if(matched)break
-    }
-    if(!matched)fieldMap.push({excelKey:ek,field:''})
-  });
+    }if(!matched)fieldMap.push({excelKey:ek,field:''})});
   excelMapping=fieldMap;
-
-  var h='<p style="font-size:0.8rem;color:#666;margin-bottom:6px">欄位對應（可修改下拉選單）：</p>';
-  h+='<table style="width:100%;font-size:0.8rem"><tr><th>Excel 欄位</th><th>對應平台欄位</th></tr>';
+  var h='<p style="font-size:0.8rem;color:#666;margin-bottom:6px">欄位對應：</p><table style="width:100%;font-size:0.8rem"><tr><th>Excel 欄位</th><th>對應平台欄位</th></tr>';
   fieldMap.forEach(function(fm){
     h+='<tr><td>'+fm.excelKey+'</td><td><select class="map-select" data-excel="'+fm.excelKey+'" style="width:100%;padding:4px;border-radius:6px;border:1px solid #ddd">';
     h+='<option value="">─ 不匯入 ─</option>';
-    FIELDS.forEach(function(f){
-      if(f.type==='auto'||f.type==='actions')return;
-      h+='<option value="'+f.key+'"'+(fm.field===f.key?'selected':'')+'>'+f.label+'</option>'
-    });
+    FIELDS.forEach(function(f){if(f.type!=='auto'&&f.type!=='actions')h+='<option value="'+f.key+'"'+(fm.field===f.key?'selected':'')+'>'+f.label+'</option>'});
     h+='</select></td></tr>'
   });
-  h+='</table>';
-  div.innerHTML=h;
+  h+='</table>';div.innerHTML=h;
   document.getElementById('confirmExcelBtn').disabled=false;
-  // Attach change events
   document.querySelectorAll('.map-select').forEach(function(sel){
-    sel.onchange=function(){
-      var ek=this.getAttribute('data-excel');
-      var fm=excelMapping.find(function(x){return x.excelKey===ek});
-      if(fm)fm.field=this.value
-    }
+    sel.onchange=function(){var ek=this.getAttribute('data-excel');var fm=excelMapping.find(function(x){return x.excelKey===ek});if(fm)fm.field=this.value}
   })
 }
-
 function importExcel(){
   if(!parsedExcelData||parsedExcelData.length===0){alert('請先上傳 Excel 檔案');return}
-  // Read current mapping from DOM
-  document.querySelectorAll('.map-select').forEach(function(sel){
-    var ek=sel.getAttribute('data-excel');
-    var fm=excelMapping.find(function(x){return x.excelKey===ek});
-    if(fm)fm.field=sel.value
-  });
-  var recs=getRecords(currentBatch);
-  var count=0;
+  document.querySelectorAll('.map-select').forEach(function(sel){var ek=sel.getAttribute('data-excel');var fm=excelMapping.find(function(x){return x.excelKey===ek});if(fm)fm.field=sel.value});
+  var recs=getRecords(currentBatch);var count=0;
   parsedExcelData.forEach(function(row){
-    var obj={};
-    var hasData=false;
+    var obj={};var hasData=false;
     excelMapping.forEach(function(fm){
-      if(!fm.field)return;
-      var v=String(row[fm.excelKey]!==undefined?row[fm.excelKey]:'').trim();
-      // Check if it's a day field
-      var isDay=false;
-      FIELDS.forEach(function(f){if(f.key===fm.field&&f.type==='day')isDay=true});
+      if(!fm.field)return;var v=String(row[fm.excelKey]!==undefined?row[fm.excelKey]:'').trim();
+      var isDay=false;FIELDS.forEach(function(f){if(f.key===fm.field&&f.type==='day')isDay=true});
       if(isDay)v=(v==='✓'||v==='1'||v==='true'||v==='TRUE'||v==='Yes'||v==='yes')?'✓':'';
-      obj[fm.field]=v;
-      if(v)hasData=true
-    });
-    if(hasData){recs.push(obj);count++}
+      obj[fm.field]=v;if(v)hasData=true
+    });if(hasData){recs.push(obj);count++}
   });
-  batchend();renderTable();
-  document.getElementById('excelFileInput').value='';
-  document.getElementById('excelPreview').innerHTML='';
-  document.getElementById('excelMapping').innerHTML='';
-  document.getElementById('confirmExcelBtn').disabled=true;
-  parsedExcelData=null;
-  closeImport();
-  alert('成功匯入 '+count+' 筆資料！')
+  batchend();renderTable();document.getElementById('excelFileInput').value='';document.getElementById('excelPreview').innerHTML='';document.getElementById('excelMapping').innerHTML='';document.getElementById('confirmExcelBtn').disabled=true;parsedExcelData=null;closeImport();alert('成功匯入 '+count+' 筆資料！')
 }
-
-// ===== CSV Import =====
 function importCSV(){
-  var text=document.getElementById('importText').value.trim();
-  if(!text){alert('請貼上 CSV 內容');return}
+  var text=document.getElementById('importText').value.trim();if(!text){alert('請貼上 CSV 內容');return}
   var lines=text.split('\n').map(function(l){return l.trim()}).filter(function(l){return l});
   if(lines.length<2){alert('至少需要標題列+一筆資料');return}
-  var headers=parseCSVLine(lines[0]);
-  var hMap={};FIELDS.forEach(function(f){hMap[f.label]=f.key});
-  var keys=headers.map(function(h){return hMap[h]||null});
-  var recs=getRecords(currentBatch);var count=0;
+  var headers=parseCSVLine(lines[0]);var hMap={};FIELDS.forEach(function(f){hMap[f.label]=f.key});
+  var keys=headers.map(function(h){return hMap[h]||null});var recs=getRecords(currentBatch);var count=0;
   for(var i=1;i<lines.length;i++){
     var vals=parseCSVLine(lines[i]);var obj={};var valid=false;
-    keys.forEach(function(k,j){
-      if(!k)return;var v=vals[j]||'';
-      var isDay=false;FIELDS.forEach(function(f){if(f.key===k&&f.type==='day')isDay=true});
-      if(isDay)v=(v==='✓'||v==='true'||v==='1')?'✓':'';
-      obj[k]=v;if(v)valid=true
-    });
+    keys.forEach(function(k,j){if(!k)return;var v=vals[j]||'';var isDay=false;FIELDS.forEach(function(f){if(f.key===k&&f.type==='day')isDay=true});if(isDay)v=(v==='✓'||v==='true'||v==='1')?'✓':'';obj[k]=v;if(v)valid=true});
     if(valid){recs.push(obj);count++}
   }
-  batchend();renderTable();document.getElementById('importText').value='';closeImport();
-  alert('成功匯入 '+count+' 筆資料！')
+  batchend();renderTable();document.getElementById('importText').value='';closeImport();alert('成功匯入 '+count+' 筆資料！')
 }
-
 function parseCSVLine(line){
   var result=[],current='',inQuote=false;
-  for(var i=0;i<line.length;i++){
-    var c=line[i];
-    if(inQuote){if(c==='"'){if(i+1<line.length&&line[i+1]==='"'){current+='"';i++}else inQuote=false}else current+=c}
-    else{if(c==='"')inQuote=true;else if(c===','){result.push(current);current=''}else current+=c}
-  }
+  for(var i=0;i<line.length;i++){var c=line[i];if(inQuote){if(c==='"'){if(i+1<line.length&&line[i+1]==='"'){current+='"';i++}else inQuote=false}else current+=c}else{if(c==='"')inQuote=true;else if(c===','){result.push(current);current=''}else current+=c}}
   result.push(current);return result
 }
-
 function exportCSV(){
-  var recs=getRecords(currentBatch);
-  if(recs.length===0){alert('尚無資料');return}
-  var cols=FIELDS.filter(function(f){return f.type!=='actions'});
-  var lines=[];lines.push(cols.map(function(c){return '"'+c.label+'"'}).join(','));
-  recs.forEach(function(r){
-    lines.push(cols.map(function(c){var v=r[c.key];if(v===undefined||v===null)v='';if(c.type==='day')v=(v===true||v==='✓')?'✓':'';return '"'+String(v).replace(/"/g,'""')+'"'}).join(','))
-  });
+  var recs=getRecords(currentBatch);if(recs.length===0){alert('尚無資料');return}
+  var cols=FIELDS.filter(function(f){return f.type!=='actions'});var lines=[];lines.push(cols.map(function(c){return '"'+c.label+'"'}).join(','));
+  recs.forEach(function(r){lines.push(cols.map(function(c){var v=r[c.key];if(v===undefined||v===null)v='';if(c.type==='day')v=(v===true||v==='✓')?'✓':'';return '"'+String(v).replace(/"/g,'""')+'"'}).join(','))});
   var blob=new Blob(['\uFEFF'+lines.join('\n')],{type:'text/csv;charset=utf-8'});
-  var a=document.createElement('a');a.href=URL.createObjectURL(blob);
-  a.download=(data.batches[currentBatch]?data.batches[currentBatch].name:'export')+'_學員資料.csv';
-  a.click();URL.revokeObjectURL(a.href)
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=(data.batches[currentBatch]?data.batches[currentBatch].name:'export')+'_學員資料.csv';a.click();URL.revokeObjectURL(a.href)
 }
 
 init();
