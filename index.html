@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>7日英語閱讀口說營 管理平台</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI','Noto Sans TC',sans-serif}
+body{background:#f0f2f5;min-height:100vh}
+.app{max-width:1400px;margin:0 auto;padding:16px}
+.header{background:#fff;border-radius:12px;padding:16px 24px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 1px 3px rgba(0,0,0,0.08)}
+.header h1{font-size:1.3rem;color:#1a1a2e}
+.header h1 span{font-size:0.8rem;color:#888;font-weight:400}
+.toolbar{background:#fff;border-radius:12px;padding:12px 16px;margin-bottom:16px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;box-shadow:0 1px 3px rgba(0,0,0,0.08)}
+.toolbar .btn{padding:6px 14px;border-radius:8px;border:none;cursor:pointer;font-size:0.85rem;transition:all .2s;font-weight:500}
+.btn-primary{background:#4361ee;color:#fff}
+.btn-primary:hover{background:#3a56d4}
+.btn-success{background:#2ec4b6;color:#fff}
+.btn-success:hover{background:#25a89c}
+.btn-danger{background:#e63946;color:#fff}
+.btn-danger:hover{background:#c92e3a}
+.btn-warning{background:#f4a261;color:#fff}
+.btn-warning:hover{background:#e08f4e}
+.btn-outline{background:transparent;color:#555;border:1px solid #ddd}
+.btn-outline:hover{background:#f5f5f5}
+.btn-sm{padding:4px 10px;font-size:0.8rem}
+.batch-select{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.batch-select select{padding:6px 10px;border-radius:8px;border:1px solid #ddd;font-size:0.85rem;background:#fff}
+.batch-tag{background:#4361ee;color:#fff;padding:4px 12px;border-radius:20px;font-size:0.8rem;font-weight:500}
+.table-wrap{background:#fff;border-radius:12px;overflow:auto;box-shadow:0 1px 3px rgba(0,0,0,0.08)}
+table{width:100%;border-collapse:collapse;font-size:0.82rem;min-width:1200px}
+th{background:#f8f9fa;color:#555;font-weight:600;padding:10px 8px;text-align:left;white-space:nowrap;border-bottom:2px solid #e8e8e8;position:sticky;top:0;z-index:1}
+td{padding:8px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
+tr:hover td{background:#f8f9ff}
+tr.selected td{background:#e8ecff}
+td input,td select,td textarea{width:100%;padding:4px 6px;border:1px solid #ddd;border-radius:6px;font-size:0.8rem;background:#fff;transition:border .2s}
+td input:focus,td select:focus,td textarea:focus{outline:none;border-color:#4361ee}
+td textarea{height:48px;resize:vertical}
+td input[type=checkbox]{width:18px;height:18px;cursor:pointer;accent-color:#4361ee}
+td .d-label{font-size:0.6rem;color:#aaa;text-align:center}
+.days-grid{display:flex;gap:2px}
+.day-cell{text-align:center;width:32px}
+.day-cell input{width:18px;height:18px;display:block;margin:0 auto;cursor:pointer}
+.day-cell .dl{font-size:0.6rem;color:#999;margin-top:2px}
+.actions{white-space:nowrap}
+.actions button{padding:4px 8px;margin:0 2px;border:none;border-radius:6px;cursor:pointer;font-size:0.75rem}
+.btn-edit{background:#e0e7ff;color:#4361ee}
+.btn-edit:hover{background:#c7d2fe}
+.btn-del{background:#fee2e2;color:#e63946}
+.btn-del:hover{background:#fecaca}
+.btn-save{background:#d1fae5;color:#059669}
+.btn-save:hover{background:#a7f3d0}
+.btn-cancel{background:#f3f4f6;color:#6b7280}
+.btn-cancel:hover{background:#e5e7eb}
+.status-badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:0.7rem;font-weight:500}
+.status-high{background:#d1fae5;color:#059669}
+.status-mid{background:#fef3c7;color:#d97706}
+.status-low{background:#fee2e2;color:#e63946}
+.status-confirm{background:#dbeafe;color:#2563eb}
+.status-purchased{background:#d1fae5;color:#059669}
+.status-pending{background:#fef3c7;color:#d97706}
+.status-none{background:#f3f4f6;color:#9ca3af}
+.empty-state{text-align:center;padding:60px 20px;color:#aaa}
+.empty-state .icon{font-size:3rem;margin-bottom:12px}
+.modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);z-index:100;justify-content:center;align-items:center}
+.modal-overlay.show{display:flex}
+.modal{background:#fff;border-radius:16px;padding:24px;width:90%;max-width:500px;max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.2)}
+.modal h2{font-size:1.1rem;margin-bottom:16px;color:#1a1a2e}
+.modal .field{margin-bottom:12px}
+.modal .field label{display:block;font-size:0.8rem;color:#666;margin-bottom:4px;font-weight:500}
+.modal .field input,.modal .field select,.modal .field textarea{width:100%;padding:8px 12px;border:1px solid #ddd;border-radius:8px;font-size:0.9rem}
+.modal .field textarea{height:60px;resize:vertical}
+.modal .btn-row{display:flex;gap:8px;margin-top:16px}
+.modal .btn-row button{flex:1}
+.stats{display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.stat-card{background:#fff;border-radius:10px;padding:12px 16px;flex:1;min-width:120px;box-shadow:0 1px 3px rgba(0,0,0,0.08)}
+.stat-card .num{font-size:1.5rem;font-weight:700;color:#1a1a2e}
+.stat-card .label{font-size:0.75rem;color:#888;margin-top:2px}
+.search-input{padding:6px 12px;border:1px solid #ddd;border-radius:8px;font-size:0.85rem;flex:1;min-width:150px;max-width:250px}
+.search-input:focus{outline:none;border-color:#4361ee}
+.import-area{display:none;margin-top:8px;padding:12px;background:#f9f9f9;border-radius:8px}
+.import-area.show{display:block}
+.import-area textarea{width:100%;height:100px;border:1px solid #ddd;border-radius:8px;padding:8px;font-size:0.8rem;font-family:monospace}
+@media(max-width:768px){.header{flex-direction:column;gap:8px;text-align:center}.toolbar{flex-direction:column;align-items:stretch}.search-input{max-width:none}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <h1>📚 7日英語閱讀口說營 <span>管理平台</span></h1>
+    <div style="font-size:0.8rem;color:#888" id="dataInfo">資料儲存於本機瀏覽器</div>
+  </div>
+
+  <div class="stats" id="statsRow"></div>
+
+  <div class="toolbar">
+    <div class="batch-select">
+      <span style="font-size:0.85rem;color:#555;font-weight:500">梯次：</span>
+      <select id="batchSelect" onchange="switchBatch(this.value)"></select>
+      <button class="btn btn-outline btn-sm" onclick="addBatch()">+ 新增梯次</button>
+      <button class="btn btn-outline btn-sm" onclick="renameBatch()">✏️ 重新命名</button>
+      <button class="btn btn-outline btn-sm btn-danger" onclick="deleteBatch()">🗑 刪除</button>
+    </div>
+    <input class="search-input" id="searchInput" placeholder="🔍 搜尋姓名、電話、推薦人..." oninput="renderTable()">
+    <button class="btn btn-primary" onclick="showAddModal()">+ 新增學員</button>
+    <button class="btn btn-success" onclick="exportCSV()">📥 匯出 CSV</button>
+    <button class="btn btn-warning" onclick="document.getElementById('importArea').classList.toggle('show')">📤 匯入</button>
+  </div>
+
+  <div class="import-area" id="importArea">
+    <p style="font-size:0.8rem;color:#666;margin-bottom:8px">貼上 CSV 資料（第一列為欄位名稱，逗號分隔）</p>
+    <textarea id="importText" placeholder="序號,購買,家長姓名,LINE暱稱,..."></textarea>
+    <div style="margin-top:8px;display:flex;gap:8px">
+      <button class="btn btn-primary btn-sm" onclick="importCSV()">確認匯入</button>
+      <button class="btn btn-outline btn-sm" onclick="document.getElementById('importArea').classList.remove('show')">取消</button>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table id="mainTable">
+      <thead id="tableHead"></thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+    <div class="empty-state" id="emptyState">
+      <div class="icon">📋</div>
+      <p>尚無資料，請新增梯次後開始記錄</p>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modalContent"></div>
+</div>
+
+<script>
+var FIELDS = [
+  {key:'seq',label:'序號',type:'auto',width:50},
+  {key:'purchase',label:'購買',type:'select',width:80,opts:['','已購買','未購買','待確認']},
+  {key:'parentName',label:'家長姓名',type:'text',width:90},
+  {key:'lineName',label:'LINE暱稱',type:'text',width:90},
+  {key:'trialAccount',label:'體驗帳號',type:'text',width:100},
+  {key:'phone',label:'連絡電話',type:'text',width:110},
+  {key:'referrer',label:'推薦人',type:'text',width:90},
+  {key:'childName',label:'孩子英文名+姓',type:'text',width:110},
+  {key:'childAge',label:'孩子年齡',type:'text',width:70},
+  {key:'appointment',label:'預約時間',type:'text',width:90},
+  {key:'callRecord',label:'電聯紀錄',type:'textarea',width:130},
+  {key:'intention',label:'購買意願',type:'select',width:80,opts:['','高','中','低','未確認']},
+  {key:'note',label:'備註',type:'textarea',width:120},
+  {key:'d1',label:'D1',type:'day',width:36},
+  {key:'d2',label:'D2',type:'day',width:36},
+  {key:'d3',label:'D3',type:'day',width:36},
+  {key:'d4',label:'D4',type:'day',width:36},
+  {key:'d5',label:'D5',type:'day',width:36},
+  {key:'d6',label:'D6',type:'day',width:36},
+  {key:'d7',label:'D7',type:'day',width:36},
+  {key:'readingDays',label:'閱讀天數',type:'number',width:70},
+  {key:'col21',label:'備註2',type:'textarea',width:100},
+  {key:'_actions',label:'操作',type:'actions',width:90}
+];
+
+var KEY = 'camp7_data';
+var data = loadData();
+var currentBatch = null;
+var editingId = null;
+
+function loadData(){
+  try{return JSON.parse(localStorage.getItem(KEY))||{batches:{},order:[]}}catch(e){return{batches:{},order:[]}}
+}
+function saveData(){
+  localStorage.setItem(KEY,JSON.stringify(data));
+  updateInfo();
+}
+
+function getBatchList(){
+  return data.order.map(function(id){return{id:id,name:data.batches[id]?data.batches[id].name:id}});
+}
+
+function getRecords(batchId){
+  if(!data.batches[batchId])data.batches[batchId]={name:batchId,records:[],nextSeq:1};
+  return data.batches[batchId].records;
+}
+
+function init(){
+  if(data.order.length===0){
+    var id='batch_'+Date.now();
+    data.order.push(id);
+    data.batches[id]={name:'第1梯',records:[],nextSeq:1};
+    saveData();
+  }
+  currentBatch=data.order[0];
+  renderBatchSelect();
+  renderStats();
+  renderTable();
+  updateInfo();
+}
+
+function updateInfo(){
+  var total=0;
+  data.order.forEach(function(id){total+=getRecords(id).length});
+  document.getElementById('dataInfo').textContent='共 '+data.order.length+' 梯次 / '+total+' 筆學員資料 (本機儲存)';
+}
+
+function renderBatchSelect(){
+  var sel=document.getElementById('batchSelect');
+  sel.innerHTML='';
+  getBatchList().forEach(function(b){
+    var o=document.createElement('option');
+    o.value=b.id;
+    o.textContent=b.name;
+    if(b.id===currentBatch)o.selected=true;
+    sel.appendChild(o);
+  });
+}
+
+function switchBatch(id){
+  currentBatch=id;
+  renderStats();
+  renderTable();
+}
+
+function addBatch(){
+  var n=prompt('請輸入新梯次名稱：','第'+(data.order.length+1)+'梯');
+  if(!n)return;
+  var id='batch_'+Date.now();
+  data.order.push(id);
+  data.batches[id]={name:n,records:[],nextSeq:1};
+  currentBatch=id;
+  saveData();
+  renderBatchSelect();
+  renderStats();
+  renderTable();
+}
+
+function renameBatch(){
+  if(!currentBatch)return;
+  var b=data.batches[currentBatch];
+  var n=prompt('重新命名：',b.name);
+  if(!n||n===b.name)return;
+  b.name=n;
+  saveData();
+  renderBatchSelect();
+}
+
+function deleteBatch(){
+  if(!currentBatch||data.order.length<=1){alert('至少保留一個梯次');return;}
+  if(!confirm('確定刪除「'+data.batches[currentBatch].name+'」？所有資料將遺失！'))return;
+  var idx=data.order.indexOf(currentBatch);
+  delete data.batches[currentBatch];
+  data.order.splice(idx,1);
+  currentBatch=data.order[Math.min(idx,data.order.length-1)];
+  saveData();
+  renderBatchSelect();
+  renderStats();
+  renderTable();
+}
+
+function renderStats(){
+  var recs=getRecords(currentBatch);
+  var h=document.getElementById('statsRow');
+  var total=recs.length;
+  var purchased=recs.filter(function(r){return r.purchase==='已購買'}).length;
+  var high=recs.filter(function(r){return r.intention==='高'}).length;
+  var d7=recs.filter(function(r){return r.d7==='✓'||r.d7===true}).length;
+  h.innerHTML='<div class="stat-card"><div class="num">'+total+'</div><div class="label">學員總數</div></div>'+
+    '<div class="stat-card"><div class="num">'+purchased+'</div><div class="label">已購買</div></div>'+
+    '<div class="stat-card"><div class="num">'+high+'</div><div class="label">高意願</div></div>'+
+    '<div class="stat-card"><div class="num">'+d7+'</div><div class="label">D7完成</div></div>';
+}
+
+function getFullIdx(filterIdx){
+  var all=getRecords(currentBatch);
+  var keyword=document.getElementById('searchInput').value.trim().toLowerCase();
+  if(!keyword)return filterIdx;
+  var filtered=all.filter(function(r){
+    return (r.parentName&&r.parentName.toLowerCase().includes(keyword))||
+           (r.childName&&r.childName.toLowerCase().includes(keyword))||
+           (r.phone&&r.phone.includes(keyword))||
+           (r.referrer&&r.referrer.toLowerCase().includes(keyword))||
+           (r.lineName&&r.lineName.toLowerCase().includes(keyword));
+  });
+  var target=filtered[filterIdx];
+  for(var i=0;i<all.length;i++){
+    if(all[i]===target)return i;
+  }
+  return filterIdx;
+}
+
+function renderTable(){
+  var allRecs=getRecords(currentBatch);
+  var keyword=document.getElementById('searchInput').value.trim().toLowerCase();
+  var recs=allRecs;
+  if(keyword){
+    recs=allRecs.filter(function(r){
+      return (r.parentName&&r.parentName.toLowerCase().includes(keyword))||
+             (r.childName&&r.childName.toLowerCase().includes(keyword))||
+             (r.phone&&r.phone.includes(keyword))||
+             (r.referrer&&r.referrer.toLowerCase().includes(keyword))||
+             (r.lineName&&r.lineName.toLowerCase().includes(keyword));
+    });
+  }
+
+  var thead=document.getElementById('tableHead');
+  var h='<tr>';
+  FIELDS.forEach(function(f){
+    h+='<th style="width:'+f.width+'px;text-align:'+(f.type==='day'||f.type==='auto'?'center':'left')+'">'+f.label+'</th>';
+  });
+  h+='</tr>';
+  thead.innerHTML=h;
+
+  var tbody=document.getElementById('tableBody');
+  var empty=document.getElementById('emptyState');
+  if(recs.length===0){
+    tbody.innerHTML='';
+    empty.style.display='block';
+    document.getElementById('mainTable').style.display='none';
+    return;
+  }
+  empty.style.display='none';
+  document.getElementById('mainTable').style.display='';
+
+  var b='';
+  recs.forEach(function(r,fi){
+    var idx=getFullIdx(fi);
+    var isEdit=(editingId===idx);
+    b+='<tr class="'+(isEdit?'selected':'')+'">';
+    FIELDS.forEach(function(f){
+      if(f.type==='auto'){
+        b+='<td style="text-align:center;color:#999">'+(fi+1)+'</td>';
+      }else if(f.type==='actions'){
+        b+='<td class="actions">';
+        if(isEdit){
+          b+='<button class="btn-save" onclick="saveRow('+idx+')">💾</button>';
+          b+='<button class="btn-cancel" onclick="cancelEdit()">✕</button>';
+        }else{
+          b+='<button class="btn-edit" onclick="editRow('+idx+')">✏️</button>';
+          b+='<button class="btn-del" onclick="deleteRow('+idx+')">🗑</button>';
+        }
+        b+='</td>';
+      }else if(f.type==='day'){
+        var val=r[f.key]===true||r[f.key]==='✓';
+        b+='<td style="text-align:center">';
+        if(isEdit){
+          b+='<input type="checkbox" '+(val?'checked':'')+' onchange="setDay('+idx+',\''+f.key+'\',this.checked)">';
+        }else{
+          b+='<span style="color:'+(val?'#059669':'#ddd')+';">'+(val?'✓':'○')+'</span>';
+        }
+        b+='</td>';
+      }else if(f.type==='select'){
+        var v=r[f.key]||'';
+        if(isEdit){
+          b+='<td><select onchange="updateField('+idx+',\''+f.key+'\',this.value)">';
+          f.opts.forEach(function(o){
+            b+='<option value="'+o+'"'+(v===o?'selected':'')+'>'+o||'─'+'</option>';
+          });
+          b+='</select></td>';
+        }else{
+          var cls='';
+          if(f.key==='intention'){
+            if(v==='高')cls='status-high';else if(v==='中')cls='status-mid';else if(v==='低')cls='status-low';else cls='status-none';
+          }else if(f.key==='purchase'){
+            if(v==='已購買')cls='status-purchased';else if(v==='待確認')cls='status-pending';else cls='status-none';
+          }
+          b+='<td>'+(v?'<span class="status-badge '+cls+'">'+v+'</span>':'─')+'</td>';
+        }
+      }else if(f.type==='textarea'){
+        var v=r[f.key]||'';
+        if(isEdit){
+          b+='<td><textarea onchange="updateField('+idx+',\''+f.key+'\',this.value)">'+v+'</textarea></td>';
+        }else{
+          b+='<td style="max-width:'+f.width+'px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+v.replace(/"/g,'&quot;')+'">'+v||'─'+'</td>';
+        }
+      }else if(f.type==='number'){
+        var v=r[f.key]!==undefined?r[f.key]:'';
+        if(isEdit){
+          b+='<td><input type="number" value="'+v+'" onchange="updateField('+idx+',\''+f.key+'\',this.value)"></td>';
+        }else{
+          b+='<td>'+(v!==''?v:'─')+'</td>';
+        }
+      }else{
+        var v=r[f.key]||'';
+        if(isEdit){
+          b+='<td><input value="'+v.replace(/"/g,'&quot;')+'" onchange="updateField('+idx+',\''+f.key+'\',this.value)"></td>';
+        }else{
+          b+='<td>'+v||'─'+'</td>';
+        }
+      }
+    });
+    b+='</tr>';
+  });
+  tbody.innerHTML=b;
+}
+
+function updateField(idx,key,val){
+  var recs=getRecords(currentBatch);
+  recs[idx][key]=val;
+  batchend();
+}
+
+function setDay(idx,key,val){
+  var recs=getRecords(currentBatch);
+  recs[idx][key]=val?'✓':'';
+  batchend();
+}
+
+function batchend(){
+  saveData();
+  renderStats();
+  // don't re-render table during inline editing to keep focus
+}
+
+function editRow(idx){
+  editingId=idx;
+  renderTable();
+}
+
+function cancelEdit(){
+  editingId=null;
+  renderTable();
+}
+
+function saveRow(idx){
+  editingId=null;
+  renderTable();
+  saveData();
+}
+
+function deleteRow(idx){
+  if(!confirm('確定刪除此學員資料？'))return;
+  var recs=getRecords(currentBatch);
+  if(idx<0||idx>=recs.length)return;
+  recs.splice(idx,1);
+  batchend();
+  renderTable();
+}
+
+function showAddModal(){
+  var modal=document.getElementById('modalOverlay');
+  var content=document.getElementById('modalContent');
+  var html='<h2>➕ 新增學員</h2>';
+  FIELDS.forEach(function(f){
+    if(f.type==='auto'||f.type==='actions'||f.type==='day')return;
+    html+='<div class="field"><label>'+f.label+'</label>';
+    if(f.type==='select'){
+      html+='<select id="add_'+f.key+'"><option value="">─</option>';
+      f.opts.forEach(function(o){html+='<option value="'+o+'">'+o+'</option>'});
+      html+='</select>';
+    }else if(f.type==='textarea'){
+      html+='<textarea id="add_'+f.key+'"></textarea>';
+    }else{
+      html+='<input id="add_'+f.key+'" type="'+(f.type==='number'?'number':'text')+'">';
+    }
+    html+='</div>';
+  });
+  html+='<div class="btn-row"><button class="btn btn-primary" onclick="confirmAdd()">確認新增</button><button class="btn btn-outline" onclick="closeModal()">取消</button></div>';
+  content.innerHTML=html;
+  modal.classList.add('show');
+}
+
+function confirmAdd(){
+  var recs=getRecords(currentBatch);
+  var obj={};
+  FIELDS.forEach(function(f){
+    if(f.type==='auto'||f.type==='actions')return;
+    if(f.type==='day'){obj[f.key]='';return;}
+    var el=document.getElementById('add_'+f.key);
+    obj[f.key]=el?el.value:'';
+  });
+  recs.push(obj);
+  batchend();
+  renderTable();
+  closeModal();
+}
+
+function closeModal(){
+  document.getElementById('modalOverlay').classList.remove('show');
+}
+
+// CSV Export
+function exportCSV(){
+  var recs=getRecords(currentBatch);
+  if(recs.length===0){alert('尚無資料可匯出');return;}
+  var cols=FIELDS.filter(function(f){return f.type!=='actions'});
+  var lines=[];
+  lines.push(cols.map(function(c){return '"'+c.label+'"'}).join(','));
+  recs.forEach(function(r){
+    var row=cols.map(function(c){
+      var v=r[c.key];
+      if(v===undefined||v===null)v='';
+      if(c.type==='day')v=(v===true||v==='✓')?'✓':'';
+      return '"'+String(v).replace(/"/g,'""')+'"';
+    });
+    lines.push(row.join(','));
+  });
+  var csv=lines.join('\n');
+  var blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  var name=data.batches[currentBatch]?data.batches[currentBatch].name:'export';
+  a.download=name+'_學員資料.csv';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+// CSV Import
+function importCSV(){
+  var text=document.getElementById('importText').value.trim();
+  if(!text){alert('請貼上 CSV 內容');return;}
+  var lines=text.split('\n').map(function(l){return l.trim()}).filter(function(l){return l});
+  if(lines.length<2){alert('至少需要標題列 + 一筆資料');return;}
+  var headers=parseCSVLine(lines[0]);
+  // Map Chinese headers to keys
+  var hMap={};
+  FIELDS.forEach(function(f){hMap[f.label]=f.key});
+  var keys=headers.map(function(h){return hMap[h]||null});
+  var recs=getRecords(currentBatch);
+  var count=0;
+  for(var i=1;i<lines.length;i++){
+    var vals=parseCSVLine(lines[i]);
+    var obj={};
+    var valid=false;
+    keys.forEach(function(k,j){
+      if(!k)return;
+      var v=vals[j]||'';
+      // Check day fields
+      var isDay=false;
+      FIELDS.forEach(function(f){if(f.key===k&&f.type==='day')isDay=true;});
+      if(isDay)v=(v==='✓'||v==='true'||v==='1')?'✓':'';
+      obj[k]=v;
+      if(v)valid=true;
+    });
+    if(valid){recs.push(obj);count++;}
+  }
+  batchend();
+  renderTable();
+  document.getElementById('importText').value='';
+  document.getElementById('importArea').classList.remove('show');
+  alert('成功匯入 '+count+' 筆資料！');
+}
+
+function parseCSVLine(line){
+  var result=[],current='',inQuote=false;
+  for(var i=0;i<line.length;i++){
+    var c=line[i];
+    if(inQuote){
+      if(c==='"'){
+        if(i+1<line.length&&line[i+1]==='"'){current+='"';i++;}
+        else inQuote=false;
+      }else current+=c;
+    }else{
+      if(c==='"')inQuote=true;
+      else if(c===','){result.push(current);current='';}
+      else current+=c;
+    }
+  }
+  result.push(current);
+  return result;
+}
+
+// Click outside modal to close
+document.getElementById('modalOverlay').onclick=function(e){
+  if(e.target===this)closeModal();
+};
+
+init();
+</script>
+</body>
+</html>
