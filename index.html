@@ -128,6 +128,7 @@ td input[type=checkbox]{width:18px;height:18px;cursor:pointer;accent-color:#4361
     <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap">
       <button class="btn btn-outline btn-sm" onclick="showImportTab('csv')" id="tabCsvBtn">CSV 貼上</button>
       <button class="btn btn-outline btn-sm" onclick="showImportTab('excel')" id="tabExcelBtn">Excel 上傳</button>
+      <button class="btn btn-outline btn-sm" onclick="showImportTab('url')" id="tabUrlBtn">從網址匯入</button>
     </div>
     <div id="importCsvPane">
       <p style="font-size:0.8rem;color:#666;margin-bottom:6px">貼上 CSV 內容（第一列為標題）</p>
@@ -149,6 +150,16 @@ td input[type=checkbox]{width:18px;height:18px;cursor:pointer;accent-color:#4361
         <button class="btn btn-primary btn-sm" id="confirmExcelBtn" onclick="importExcel()" disabled>確認匯入</button>
         <button class="btn btn-outline btn-sm" onclick="closeImport()">取消</button>
       </div>
+    </div>
+    <div id="importUrlPane" style="display:none">
+      <p style="font-size:0.8rem;color:#666;margin-bottom:6px">貼上 Google 試算表網址，系統自動抓取資料</p>
+      <input id="importUrlInput" style="width:100%;padding:8px 12px;border:1px solid #ddd;border-radius:8px;font-size:0.85rem" placeholder="https://docs.google.com/spreadsheets/d/...">
+      <div style="margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <button class="btn btn-primary btn-sm" onclick="importFromUrl()">🔗 抓取並匯入</button>
+        <span id="urlStatus" style="font-size:0.8rem;color:#999"></span>
+        <button class="btn btn-outline btn-sm" onclick="closeImport()">取消</button>
+      </div>
+      <div id="urlPreview" class="import-preview" style="margin-top:8px"></div>
     </div>
   </div>
 
@@ -436,10 +447,11 @@ function toggleImport(){
   area.classList.toggle('show');
   if(!area.classList.contains('show'))closeImport()
 }
-function closeImport(){document.getElementById('importArea').classList.remove('show');document.getElementById('importCsvPane').style.display='';document.getElementById('importExcelPane').style.display='none'}
+function closeImport(){document.getElementById('importArea').classList.remove('show');document.getElementById('importCsvPane').style.display='';document.getElementById('importExcelPane').style.display='none';document.getElementById('importUrlPane').style.display='none'}
 function showImportTab(tab){
   document.getElementById('importCsvPane').style.display=tab==='csv'?'':'none';
-  document.getElementById('importExcelPane').style.display=tab==='excel'?'':'none'
+  document.getElementById('importExcelPane').style.display=tab==='excel'?'':'none';
+  document.getElementById('importUrlPane').style.display=tab==='url'?'':'none'
 }
 
 var parsedExcelData=null;var excelMapping=[];
@@ -506,6 +518,54 @@ function importExcel(){
   });
   batchend();renderTable();document.getElementById('excelFileInput').value='';document.getElementById('excelPreview').innerHTML='';document.getElementById('excelMapping').innerHTML='';document.getElementById('confirmExcelBtn').disabled=true;parsedExcelData=null;closeImport();alert('成功匯入 '+count+' 筆資料！')
 }
+function importFromUrl(){
+  var url=document.getElementById('importUrlInput').value.trim();
+  var status=document.getElementById('urlStatus');
+  var preview=document.getElementById('urlPreview');
+  if(!url){status.textContent='請貼上網址';return}
+  // Extract sheet ID from Google Sheets URL
+  var match=url.match(/\/spreadsheets\/d\/([a-zA-Z0-9_-]+)/);
+  var gidMatch=url.match(/gid=(\d+)/);
+  if(!match){status.textContent='無法辨識的網址格式';return}
+  var sheetId=match[1];
+  var gid=gidMatch?gidMatch[1]:'0';
+  var csvUrl='https://docs.google.com/spreadsheets/d/'+sheetId+'/export?format=csv&gid='+gid;
+  status.textContent='正在抓取資料...';
+  preview.innerHTML='';
+  fetch(csvUrl).then(function(resp){
+    if(!resp.ok)throw new Error('HTTP '+resp.status);
+    return resp.text();
+  }).then(function(csvText){
+    if(!csvText.trim()){status.textContent='抓取成功但無資料';return}
+    status.textContent='已抓取 '+csvText.split('\n').length+' 列';
+    // Show preview
+    var lines=csvText.split('\n').slice(0,6);
+    var h='<table><tr>'+lines[0].split(',').map(function(c){return '<th>'+c.replace(/"/g,'')+'</th>'}).join('')+'</tr>';
+    for(var i=1;i<lines.length;i++){
+      h+='<tr>'+lines[i].split(',').map(function(c){return '<td>'+c.replace(/"/g,'')+'</td>'}).join('')+'</tr>'
+    }
+    preview.innerHTML=h;
+    // Parse and import
+    var allLines=csvText.split('\n').map(function(l){return l.trim()}).filter(function(l){return l});
+    if(allLines.length<2){status.textContent='資料不足';return}
+    var headers=parseCSVLine(allLines[0]);
+    var hMap={};FIELDS.forEach(function(f){hMap[f.label]=f.key});
+    var keys=headers.map(function(h){return hMap[h]||null});
+    var recs=getRecords(currentBatch);var count=0;
+    for(var i=1;i<allLines.length;i++){
+      var vals=parseCSVLine(allLines[i]);var obj={};var valid=false;
+      keys.forEach(function(k,j){if(!k)return;var v=vals[j]||'';var isDay=false;FIELDS.forEach(function(f){if(f.key===k&&f.type==='day')isDay=true});if(isDay)v=(v==='✓'||v==='true'||v==='1')?'✓':'';obj[k]=v;if(v)valid=true});
+      if(valid){recs.push(obj);count++}
+    }
+    batchend();renderTable();
+    status.textContent='✅ 成功匯入 '+count+' 筆資料！';
+    setTimeout(function(){closeImport()},2000);
+  }).catch(function(err){
+    status.textContent='❌ 抓取失敗：'+err.message;
+    preview.innerHTML='<p style="color:#e63946;font-size:0.85rem">無法直接存取此試算表。請試試：<br>1. 確認試算表共用權限為「任何知道連結的人均可檢視」<br>2. 或先手動下載 CSV 後用「CSV 貼上」匯入</p>';
+  });
+}
+
 function importCSV(){
   var text=document.getElementById('importText').value.trim();if(!text){alert('請貼上 CSV 內容');return}
   var lines=text.split('\n').map(function(l){return l.trim()}).filter(function(l){return l});
