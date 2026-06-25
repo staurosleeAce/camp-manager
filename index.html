@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>7日英語閱讀口說營 管理平台</title>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI','Noto Sans TC',sans-serif}
 body{background:#f0f2f5;min-height:100vh}
@@ -26,7 +27,6 @@ body{background:#f0f2f5;min-height:100vh}
 .btn-sm{padding:4px 10px;font-size:0.8rem}
 .batch-select{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 .batch-select select{padding:6px 10px;border-radius:8px;border:1px solid #ddd;font-size:0.85rem;background:#fff}
-.batch-tag{background:#4361ee;color:#fff;padding:4px 12px;border-radius:20px;font-size:0.8rem;font-weight:500}
 .table-wrap{background:#fff;border-radius:12px;overflow:auto;box-shadow:0 1px 3px rgba(0,0,0,0.08)}
 table{width:100%;border-collapse:collapse;font-size:0.82rem;min-width:1200px}
 th{background:#f8f9fa;color:#555;font-weight:600;padding:10px 8px;text-align:left;white-space:nowrap;border-bottom:2px solid #e8e8e8;position:sticky;top:0;z-index:1}
@@ -37,21 +37,7 @@ td input,td select,td textarea{width:100%;padding:4px 6px;border:1px solid #ddd;
 td input:focus,td select:focus,td textarea:focus{outline:none;border-color:#4361ee}
 td textarea{height:48px;resize:vertical}
 td input[type=checkbox]{width:18px;height:18px;cursor:pointer;accent-color:#4361ee}
-td .d-label{font-size:0.6rem;color:#aaa;text-align:center}
 .days-grid{display:flex;gap:2px}
-.day-cell{text-align:center;width:32px}
-.day-cell input{width:18px;height:18px;display:block;margin:0 auto;cursor:pointer}
-.day-cell .dl{font-size:0.6rem;color:#999;margin-top:2px}
-.actions{white-space:nowrap}
-.actions button{padding:4px 8px;margin:0 2px;border:none;border-radius:6px;cursor:pointer;font-size:0.75rem}
-.btn-edit{background:#e0e7ff;color:#4361ee}
-.btn-edit:hover{background:#c7d2fe}
-.btn-del{background:#fee2e2;color:#e63946}
-.btn-del:hover{background:#fecaca}
-.btn-save{background:#d1fae5;color:#059669}
-.btn-save:hover{background:#a7f3d0}
-.btn-cancel{background:#f3f4f6;color:#6b7280}
-.btn-cancel:hover{background:#e5e7eb}
 .status-badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:0.7rem;font-weight:500}
 .status-high{background:#d1fae5;color:#059669}
 .status-mid{background:#fef3c7;color:#d97706}
@@ -62,9 +48,19 @@ td .d-label{font-size:0.6rem;color:#aaa;text-align:center}
 .status-none{background:#f3f4f6;color:#9ca3af}
 .empty-state{text-align:center;padding:60px 20px;color:#aaa}
 .empty-state .icon{font-size:3rem;margin-bottom:12px}
+.actions{white-space:nowrap}
+.actions button{padding:4px 8px;margin:0 2px;border:none;border-radius:6px;cursor:pointer;font-size:0.75rem}
+.btn-edit{background:#e0e7ff;color:#4361ee}
+.btn-edit:hover{background:#c7d2fe}
+.btn-del{background:#fee2e2;color:#e63946}
+.btn-del:hover{background:#fecaca}
+.btn-save{background:#d1fae5;color:#059669}
+.btn-save:hover{background:#a7f3d0}
+.btn-cancel{background:#f3f4f6;color:#6b7280}
+.btn-cancel:hover{background:#e5e7eb}
 .modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);z-index:100;justify-content:center;align-items:center}
 .modal-overlay.show{display:flex}
-.modal{background:#fff;border-radius:16px;padding:24px;width:90%;max-width:500px;max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.2)}
+.modal{background:#fff;border-radius:16px;padding:24px;width:90%;max-width:520px;max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.2)}
 .modal h2{font-size:1.1rem;margin-bottom:16px;color:#1a1a2e}
 .modal .field{margin-bottom:12px}
 .modal .field label{display:block;font-size:0.8rem;color:#666;margin-bottom:4px;font-weight:500}
@@ -81,38 +77,63 @@ td .d-label{font-size:0.6rem;color:#aaa;text-align:center}
 .import-area{display:none;margin-top:8px;padding:12px;background:#f9f9f9;border-radius:8px}
 .import-area.show{display:block}
 .import-area textarea{width:100%;height:100px;border:1px solid #ddd;border-radius:8px;padding:8px;font-size:0.8rem;font-family:monospace}
+.file-input-wrap{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.file-input-wrap input[type=file]{font-size:0.85rem;flex:1;min-width:150px}
+.import-preview{max-height:200px;overflow:auto;border:1px solid #eee;border-radius:8px;margin-top:8px;font-size:0.8rem}
+.import-preview table{min-width:auto;font-size:0.75rem}
+.import-preview td,.import-preview th{padding:4px 8px;white-space:nowrap}
+.import-preview th{background:#f5f5f5}
 @media(max-width:768px){.header{flex-direction:column;gap:8px;text-align:center}.toolbar{flex-direction:column;align-items:stretch}.search-input{max-width:none}}
 </style>
 </head>
 <body>
 <div class="app">
   <div class="header">
-    <h1>📚 7日英語閱讀口說營 <span>管理平台</span></h1>
+    <h1>7日英語閱讀口說營 管理平台</h1>
     <div style="font-size:0.8rem;color:#888" id="dataInfo">資料儲存於本機瀏覽器</div>
   </div>
-
   <div class="stats" id="statsRow"></div>
-
   <div class="toolbar">
     <div class="batch-select">
       <span style="font-size:0.85rem;color:#555;font-weight:500">梯次：</span>
       <select id="batchSelect" onchange="switchBatch(this.value)"></select>
       <button class="btn btn-outline btn-sm" onclick="addBatch()">+ 新增梯次</button>
-      <button class="btn btn-outline btn-sm" onclick="renameBatch()">✏️ 重新命名</button>
-      <button class="btn btn-outline btn-sm btn-danger" onclick="deleteBatch()">🗑 刪除</button>
+      <button class="btn btn-outline btn-sm" onclick="renameBatch()">重新命名</button>
+      <button class="btn btn-outline btn-sm btn-danger" onclick="deleteBatch()">刪除</button>
     </div>
-    <input class="search-input" id="searchInput" placeholder="🔍 搜尋姓名、電話、推薦人..." oninput="renderTable()">
+    <input class="search-input" id="searchInput" placeholder="搜尋姓名、電話、推薦人..." oninput="renderTable()">
     <button class="btn btn-primary" onclick="showAddModal()">+ 新增學員</button>
-    <button class="btn btn-success" onclick="exportCSV()">📥 匯出 CSV</button>
-    <button class="btn btn-warning" onclick="document.getElementById('importArea').classList.toggle('show')">📤 匯入</button>
+    <button class="btn btn-success" onclick="exportCSV()">匯出 CSV</button>
+    <button class="btn btn-warning" onclick="toggleImport()">匯入</button>
   </div>
 
   <div class="import-area" id="importArea">
-    <p style="font-size:0.8rem;color:#666;margin-bottom:8px">貼上 CSV 資料（第一列為欄位名稱，逗號分隔）</p>
-    <textarea id="importText" placeholder="序號,購買,家長姓名,LINE暱稱,..."></textarea>
-    <div style="margin-top:8px;display:flex;gap:8px">
-      <button class="btn btn-primary btn-sm" onclick="importCSV()">確認匯入</button>
-      <button class="btn btn-outline btn-sm" onclick="document.getElementById('importArea').classList.remove('show')">取消</button>
+    <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap">
+      <button class="btn btn-outline btn-sm" onclick="showImportTab('csv')" id="tabCsvBtn">CSV 貼上</button>
+      <button class="btn btn-outline btn-sm" onclick="showImportTab('excel')" id="tabExcelBtn">Excel 上傳</button>
+    </div>
+
+    <div id="importCsvPane">
+      <p style="font-size:0.8rem;color:#666;margin-bottom:6px">貼上 CSV 內容（第一列為標題）</p>
+      <textarea id="importText" placeholder="序號,購買,家長姓名,LINE暱稱,..."></textarea>
+      <div style="margin-top:6px;display:flex;gap:8px">
+        <button class="btn btn-primary btn-sm" onclick="importCSV()">確認匯入</button>
+        <button class="btn btn-outline btn-sm" onclick="closeImport()">取消</button>
+      </div>
+    </div>
+
+    <div id="importExcelPane" style="display:none">
+      <p style="font-size:0.8rem;color:#666;margin-bottom:6px">上傳 Excel 檔案 (.xlsx / .xls / .csv)</p>
+      <div class="file-input-wrap">
+        <input type="file" id="excelFileInput" accept=".xlsx,.xls,.csv" onchange="handleExcelFile(event)">
+        <span id="excelStatus" style="font-size:0.8rem;color:#999"></span>
+      </div>
+      <div id="excelPreview" class="import-preview"></div>
+      <div id="excelMapping" style="margin-top:8px"></div>
+      <div style="margin-top:8px;display:flex;gap:8px">
+        <button class="btn btn-primary btn-sm" id="confirmExcelBtn" onclick="importExcel()" disabled>確認匯入</button>
+        <button class="btn btn-outline btn-sm" onclick="closeImport()">取消</button>
+      </div>
     </div>
   </div>
 
@@ -123,7 +144,7 @@ td .d-label{font-size:0.6rem;color:#aaa;text-align:center}
     </table>
     <div class="empty-state" id="emptyState">
       <div class="icon">📋</div>
-      <p>尚無資料，請新增梯次後開始記錄</p>
+      <p>尚無資料，請新增梯次或匯入資料</p>
     </div>
   </div>
 </div>
@@ -163,404 +184,347 @@ var KEY = 'camp7_data';
 var data = loadData();
 var currentBatch = null;
 var editingId = null;
+var excelData = null;
 
 function loadData(){
-  try{return JSON.parse(localStorage.getItem(KEY))||{batches:{},order:[]}}catch(e){return{batches:{},order:[]}}
+  try{var r=localStorage.getItem(KEY);return r?JSON.parse(r):{batches:{},order:[]}}catch(e){return{batches:{},order:[]}}
 }
-function saveData(){
-  localStorage.setItem(KEY,JSON.stringify(data));
-  updateInfo();
-}
-
-function getBatchList(){
-  return data.order.map(function(id){return{id:id,name:data.batches[id]?data.batches[id].name:id}});
-}
-
-function getRecords(batchId){
-  if(!data.batches[batchId])data.batches[batchId]={name:batchId,records:[],nextSeq:1};
-  return data.batches[batchId].records;
-}
+function saveData(){localStorage.setItem(KEY,JSON.stringify(data));updateInfo()}
+function getBatchList(){return data.order.map(function(id){return{id:id,name:data.batches[id]?data.batches[id].name:id}})}
+function getRecords(batchId){if(!data.batches[batchId])data.batches[batchId]={name:batchId,records:[],nextSeq:1};return data.batches[batchId].records}
 
 function init(){
-  if(data.order.length===0){
-    var id='batch_'+Date.now();
-    data.order.push(id);
-    data.batches[id]={name:'第1梯',records:[],nextSeq:1};
-    saveData();
-  }
-  currentBatch=data.order[0];
-  renderBatchSelect();
-  renderStats();
-  renderTable();
-  updateInfo();
+  if(data.order.length===0){var id='batch_'+Date.now();data.order.push(id);data.batches[id]={name:'第1梯',records:[],nextSeq:1};saveData()}
+  currentBatch=data.order[0];renderBatchSelect();renderStats();renderTable();updateInfo()
 }
 
 function updateInfo(){
-  var total=0;
-  data.order.forEach(function(id){total+=getRecords(id).length});
-  document.getElementById('dataInfo').textContent='共 '+data.order.length+' 梯次 / '+total+' 筆學員資料 (本機儲存)';
+  var t=0;data.order.forEach(function(i){t+=getRecords(i).length});
+  document.getElementById('dataInfo').textContent='共 '+data.order.length+' 梯次 / '+t+' 筆學員 (本機儲存)'
 }
 
 function renderBatchSelect(){
-  var sel=document.getElementById('batchSelect');
-  sel.innerHTML='';
-  getBatchList().forEach(function(b){
-    var o=document.createElement('option');
-    o.value=b.id;
-    o.textContent=b.name;
-    if(b.id===currentBatch)o.selected=true;
-    sel.appendChild(o);
-  });
+  var sel=document.getElementById('batchSelect');sel.innerHTML='';
+  getBatchList().forEach(function(b){var o=document.createElement('option');o.value=b.id;o.textContent=b.name;if(b.id===currentBatch)o.selected=true;sel.appendChild(o)})
 }
 
-function switchBatch(id){
-  currentBatch=id;
-  renderStats();
-  renderTable();
-}
-
+function switchBatch(id){currentBatch=id;renderStats();renderTable()}
 function addBatch(){
-  var n=prompt('請輸入新梯次名稱：','第'+(data.order.length+1)+'梯');
-  if(!n)return;
-  var id='batch_'+Date.now();
-  data.order.push(id);
-  data.batches[id]={name:n,records:[],nextSeq:1};
-  currentBatch=id;
-  saveData();
-  renderBatchSelect();
-  renderStats();
-  renderTable();
+  var n=prompt('新梯次名稱：','第'+(data.order.length+1)+'梯');if(!n)return;
+  var id='batch_'+Date.now();data.order.push(id);data.batches[id]={name:n,records:[],nextSeq:1};currentBatch=id;saveData();renderBatchSelect();renderStats();renderTable()
 }
-
 function renameBatch(){
-  if(!currentBatch)return;
-  var b=data.batches[currentBatch];
-  var n=prompt('重新命名：',b.name);
-  if(!n||n===b.name)return;
-  b.name=n;
-  saveData();
-  renderBatchSelect();
+  if(!currentBatch)return;var b=data.batches[currentBatch];var n=prompt('重新命名：',b.name);if(!n||n===b.name)return;b.name=n;saveData();renderBatchSelect()
 }
-
 function deleteBatch(){
-  if(!currentBatch||data.order.length<=1){alert('至少保留一個梯次');return;}
-  if(!confirm('確定刪除「'+data.batches[currentBatch].name+'」？所有資料將遺失！'))return;
-  var idx=data.order.indexOf(currentBatch);
-  delete data.batches[currentBatch];
-  data.order.splice(idx,1);
-  currentBatch=data.order[Math.min(idx,data.order.length-1)];
-  saveData();
-  renderBatchSelect();
-  renderStats();
-  renderTable();
+  if(!currentBatch||data.order.length<=1){alert('至少保留一個梯次');return}
+  if(!confirm('刪除「'+data.batches[currentBatch].name+'」？所有資料將遺失！'))return;
+  var idx=data.order.indexOf(currentBatch);delete data.batches[currentBatch];data.order.splice(idx,1);
+  currentBatch=data.order[Math.min(idx,data.order.length-1)];saveData();renderBatchSelect();renderStats();renderTable()
 }
 
 function renderStats(){
-  var recs=getRecords(currentBatch);
-  var h=document.getElementById('statsRow');
-  var total=recs.length;
-  var purchased=recs.filter(function(r){return r.purchase==='已購買'}).length;
-  var high=recs.filter(function(r){return r.intention==='高'}).length;
-  var d7=recs.filter(function(r){return r.d7==='✓'||r.d7===true}).length;
-  h.innerHTML='<div class="stat-card"><div class="num">'+total+'</div><div class="label">學員總數</div></div>'+
-    '<div class="stat-card"><div class="num">'+purchased+'</div><div class="label">已購買</div></div>'+
-    '<div class="stat-card"><div class="num">'+high+'</div><div class="label">高意願</div></div>'+
-    '<div class="stat-card"><div class="num">'+d7+'</div><div class="label">D7完成</div></div>';
+  var r=getRecords(currentBatch);
+  document.getElementById('statsRow').innerHTML=
+    '<div class="stat-card"><div class="num">'+r.length+'</div><div class="label">學員</div></div>'+
+    '<div class="stat-card"><div class="num">'+r.filter(function(x){return x.purchase==='已購買'}).length+'</div><div class="label">已購買</div></div>'+
+    '<div class="stat-card"><div class="num">'+r.filter(function(x){return x.intention==='高'}).length+'</div><div class="label">高意願</div></div>'+
+    '<div class="stat-card"><div class="num">'+r.filter(function(x){return x.d7==='✓'||x.d7===true}).length+'</div><div class="label">D7完成</div></div>'
 }
 
-function getFullIdx(filterIdx){
-  var all=getRecords(currentBatch);
-  var keyword=document.getElementById('searchInput').value.trim().toLowerCase();
-  if(!keyword)return filterIdx;
-  var filtered=all.filter(function(r){
-    return (r.parentName&&r.parentName.toLowerCase().includes(keyword))||
-           (r.childName&&r.childName.toLowerCase().includes(keyword))||
-           (r.phone&&r.phone.includes(keyword))||
-           (r.referrer&&r.referrer.toLowerCase().includes(keyword))||
-           (r.lineName&&r.lineName.toLowerCase().includes(keyword));
-  });
-  var target=filtered[filterIdx];
-  for(var i=0;i<all.length;i++){
-    if(all[i]===target)return i;
-  }
-  return filterIdx;
+function getFullIdx(fi){
+  var all=getRecords(currentBatch);var kw=document.getElementById('searchInput').value.trim().toLowerCase();
+  if(!kw)return fi;
+  var f=all.filter(function(r){return(r.parentName&&r.parentName.toLowerCase().includes(kw))||(r.childName&&r.childName.toLowerCase().includes(kw))||(r.phone&&r.phone.includes(kw))||(r.referrer&&r.referrer.toLowerCase().includes(kw))||(r.lineName&&r.lineName.toLowerCase().includes(kw))});
+  var t=f[fi];for(var i=0;i<all.length;i++){if(all[i]===t)return i}return fi
 }
 
 function renderTable(){
-  var allRecs=getRecords(currentBatch);
-  var keyword=document.getElementById('searchInput').value.trim().toLowerCase();
-  var recs=allRecs;
-  if(keyword){
-    recs=allRecs.filter(function(r){
-      return (r.parentName&&r.parentName.toLowerCase().includes(keyword))||
-             (r.childName&&r.childName.toLowerCase().includes(keyword))||
-             (r.phone&&r.phone.includes(keyword))||
-             (r.referrer&&r.referrer.toLowerCase().includes(keyword))||
-             (r.lineName&&r.lineName.toLowerCase().includes(keyword));
-    });
-  }
-
-  var thead=document.getElementById('tableHead');
-  var h='<tr>';
-  FIELDS.forEach(function(f){
-    h+='<th style="width:'+f.width+'px;text-align:'+(f.type==='day'||f.type==='auto'?'center':'left')+'">'+f.label+'</th>';
-  });
-  h+='</tr>';
-  thead.innerHTML=h;
-
-  var tbody=document.getElementById('tableBody');
-  var empty=document.getElementById('emptyState');
-  if(recs.length===0){
-    tbody.innerHTML='';
-    empty.style.display='block';
-    document.getElementById('mainTable').style.display='none';
-    return;
-  }
-  empty.style.display='none';
-  document.getElementById('mainTable').style.display='';
-
+  var all=getRecords(currentBatch);var kw=document.getElementById('searchInput').value.trim().toLowerCase();
+  var recs=kw?all.filter(function(r){return(r.parentName&&r.parentName.toLowerCase().includes(kw))||(r.childName&&r.childName.toLowerCase().includes(kw))||(r.phone&&r.phone.includes(kw))||(r.referrer&&r.referrer.toLowerCase().includes(kw))||(r.lineName&&r.lineName.toLowerCase().includes(kw))}):all;
+  var thead=document.getElementById('tableHead');var h='<tr>';
+  FIELDS.forEach(function(f){h+='<th style="width:'+f.width+'px;text-align:'+(f.type==='day'||f.type==='auto'?'center':'left')+'">'+f.label+'</th>'});
+  h+='</tr>';thead.innerHTML=h;
+  var tbody=document.getElementById('tableBody');var empty=document.getElementById('emptyState');
+  if(recs.length===0){tbody.innerHTML='';empty.style.display='block';document.getElementById('mainTable').style.display='none';return}
+  empty.style.display='none';document.getElementById('mainTable').style.display='';
   var b='';
   recs.forEach(function(r,fi){
-    var idx=getFullIdx(fi);
-    var isEdit=(editingId===idx);
+    var idx=getFullIdx(fi);var isEdit=(editingId===idx);
     b+='<tr class="'+(isEdit?'selected':'')+'">';
     FIELDS.forEach(function(f){
-      if(f.type==='auto'){
-        b+='<td style="text-align:center;color:#999">'+(fi+1)+'</td>';
-      }else if(f.type==='actions'){
+      if(f.type==='auto'){b+='<td style="text-align:center;color:#999">'+(fi+1)+'</td>';return}
+      if(f.type==='actions'){
         b+='<td class="actions">';
-        if(isEdit){
-          b+='<button class="btn-save" onclick="saveRow('+idx+')">💾</button>';
-          b+='<button class="btn-cancel" onclick="cancelEdit()">✕</button>';
-        }else{
-          b+='<button class="btn-edit" onclick="editRow('+idx+')">✏️</button>';
-          b+='<button class="btn-del" onclick="deleteRow('+idx+')">🗑</button>';
-        }
-        b+='</td>';
-      }else if(f.type==='day'){
+        if(isEdit){b+='<button class="btn-save" onclick="saveRow('+idx+')">💾</button><button class="btn-cancel" onclick="cancelEdit()">✕</button>'}
+        else{b+='<button class="btn-edit" onclick="editRow('+idx+')">✏️</button><button class="btn-del" onclick="deleteRow('+idx+')">🗑</button>'}
+        b+='</td>';return
+      }
+      if(f.type==='day'){
         var val=r[f.key]===true||r[f.key]==='✓';
         b+='<td style="text-align:center">';
-        if(isEdit){
-          b+='<input type="checkbox" '+(val?'checked':'')+' onchange="setDay('+idx+',\''+f.key+'\',this.checked)">';
-        }else{
-          b+='<span style="color:'+(val?'#059669':'#ddd')+';">'+(val?'✓':'○')+'</span>';
-        }
-        b+='</td>';
-      }else if(f.type==='select'){
-        var v=r[f.key]||'';
+        if(isEdit){b+='<input type="checkbox" '+(val?'checked':'')+' onchange="setDay('+idx+',\''+f.key+'\',this.checked)">'}
+        else{b+='<span style="color:'+(val?'#059669':'#ddd')+';">'+(val?'✓':'○')+'</span>'}
+        b+='</td>';return
+      }
+      var v=r[f.key]||'';
+      if(f.type==='select'){
         if(isEdit){
           b+='<td><select onchange="updateField('+idx+',\''+f.key+'\',this.value)">';
-          f.opts.forEach(function(o){
-            b+='<option value="'+o+'"'+(v===o?'selected':'')+'>'+o||'─'+'</option>';
-          });
-          b+='</select></td>';
+          f.opts.forEach(function(o){b+='<option value="'+o+'"'+(v===o?'selected':'')+'>'+(o||'─')+'</option>'});
+          b+='</select></td>'
         }else{
           var cls='';
-          if(f.key==='intention'){
-            if(v==='高')cls='status-high';else if(v==='中')cls='status-mid';else if(v==='低')cls='status-low';else cls='status-none';
-          }else if(f.key==='purchase'){
-            if(v==='已購買')cls='status-purchased';else if(v==='待確認')cls='status-pending';else cls='status-none';
-          }
-          b+='<td>'+(v?'<span class="status-badge '+cls+'">'+v+'</span>':'─')+'</td>';
+          if(f.key==='intention'){if(v==='高')cls='status-high';else if(v==='中')cls='status-mid';else if(v==='低')cls='status-low';else cls='status-none'}
+          else if(f.key==='purchase'){if(v==='已購買')cls='status-purchased';else if(v==='待確認')cls='status-pending';else cls='status-none'}
+          b+='<td>'+(v?'<span class="status-badge '+cls+'">'+v+'</span>':'─')+'</td>'
         }
       }else if(f.type==='textarea'){
-        var v=r[f.key]||'';
-        if(isEdit){
-          b+='<td><textarea onchange="updateField('+idx+',\''+f.key+'\',this.value)">'+v+'</textarea></td>';
-        }else{
-          b+='<td style="max-width:'+f.width+'px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+v.replace(/"/g,'&quot;')+'">'+v||'─'+'</td>';
-        }
+        if(isEdit){b+='<td><textarea onchange="updateField('+idx+',\''+f.key+'\',this.value)">'+v+'</textarea></td>'}
+        else{b+='<td style="max-width:'+f.width+'px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+v.replace(/"/g,'&quot;')+'">'+(v||'─')+'</td>'}
       }else if(f.type==='number'){
-        var v=r[f.key]!==undefined?r[f.key]:'';
-        if(isEdit){
-          b+='<td><input type="number" value="'+v+'" onchange="updateField('+idx+',\''+f.key+'\',this.value)"></td>';
-        }else{
-          b+='<td>'+(v!==''?v:'─')+'</td>';
-        }
+        var nv=r[f.key]!==undefined?r[f.key]:'';
+        if(isEdit){b+='<td><input type="number" value="'+nv+'" onchange="updateField('+idx+',\''+f.key+'\',this.value)"></td>'}
+        else{b+='<td>'+(nv!==''?nv:'─')+'</td>'}
       }else{
-        var v=r[f.key]||'';
-        if(isEdit){
-          b+='<td><input value="'+v.replace(/"/g,'&quot;')+'" onchange="updateField('+idx+',\''+f.key+'\',this.value)"></td>';
-        }else{
-          b+='<td>'+v||'─'+'</td>';
-        }
+        if(isEdit){b+='<td><input value="'+v.replace(/"/g,'&quot;')+'" onchange="updateField('+idx+',\''+f.key+'\',this.value)"></td>'}
+        else{b+='<td>'+(v||'─')+'</td>'}
       }
     });
-    b+='</tr>';
+    b+='</tr>'
   });
-  tbody.innerHTML=b;
+  tbody.innerHTML=b
 }
 
-function updateField(idx,key,val){
-  var recs=getRecords(currentBatch);
-  recs[idx][key]=val;
-  batchend();
-}
-
-function setDay(idx,key,val){
-  var recs=getRecords(currentBatch);
-  recs[idx][key]=val?'✓':'';
-  batchend();
-}
-
-function batchend(){
-  saveData();
-  renderStats();
-  // don't re-render table during inline editing to keep focus
-}
-
-function editRow(idx){
-  editingId=idx;
-  renderTable();
-}
-
-function cancelEdit(){
-  editingId=null;
-  renderTable();
-}
-
-function saveRow(idx){
-  editingId=null;
-  renderTable();
-  saveData();
-}
-
-function deleteRow(idx){
-  if(!confirm('確定刪除此學員資料？'))return;
-  var recs=getRecords(currentBatch);
-  if(idx<0||idx>=recs.length)return;
-  recs.splice(idx,1);
-  batchend();
-  renderTable();
-}
+function updateField(idx,key,val){var r=getRecords(currentBatch);if(idx>=0&&idx<r.length){r[idx][key]=val;batchend()}}
+function setDay(idx,key,val){var r=getRecords(currentBatch);if(idx>=0&&idx<r.length){r[idx][key]=val?'✓':'';batchend()}}
+function batchend(){saveData();renderStats()}
+function editRow(idx){editingId=idx;renderTable()}
+function cancelEdit(){editingId=null;renderTable()}
+function saveRow(idx){editingId=null;renderTable();saveData()}
+function deleteRow(idx){if(!confirm('確定刪除？'))return;var r=getRecords(currentBatch);if(idx<0||idx>=r.length)return;r.splice(idx,1);batchend();renderTable()}
 
 function showAddModal(){
-  var modal=document.getElementById('modalOverlay');
-  var content=document.getElementById('modalContent');
-  var html='<h2>➕ 新增學員</h2>';
+  var m=document.getElementById('modalOverlay');var c=document.getElementById('modalContent');
+  var h='<h2>新增學員</h2>';
   FIELDS.forEach(function(f){
     if(f.type==='auto'||f.type==='actions'||f.type==='day')return;
-    html+='<div class="field"><label>'+f.label+'</label>';
-    if(f.type==='select'){
-      html+='<select id="add_'+f.key+'"><option value="">─</option>';
-      f.opts.forEach(function(o){html+='<option value="'+o+'">'+o+'</option>'});
-      html+='</select>';
-    }else if(f.type==='textarea'){
-      html+='<textarea id="add_'+f.key+'"></textarea>';
-    }else{
-      html+='<input id="add_'+f.key+'" type="'+(f.type==='number'?'number':'text')+'">';
-    }
-    html+='</div>';
+    h+='<div class="field"><label>'+f.label+'</label>';
+    if(f.type==='select'){h+='<select id="add_'+f.key+'"><option value="">─</option>';f.opts.forEach(function(o){h+='<option value="'+o+'">'+o+'</option>'});h+='</select>'}
+    else if(f.type==='textarea'){h+='<textarea id="add_'+f.key+'"></textarea>'}
+    else{h+='<input id="add_'+f.key+'" type="'+(f.type==='number'?'number':'text')+'">'}
+    h+='</div>'
   });
-  html+='<div class="btn-row"><button class="btn btn-primary" onclick="confirmAdd()">確認新增</button><button class="btn btn-outline" onclick="closeModal()">取消</button></div>';
-  content.innerHTML=html;
-  modal.classList.add('show');
+  h+='<div class="btn-row"><button class="btn btn-primary" onclick="confirmAdd()">確認新增</button><button class="btn btn-outline" onclick="closeModal()">取消</button></div>';
+  c.innerHTML=h;m.classList.add('show')
 }
-
 function confirmAdd(){
-  var recs=getRecords(currentBatch);
-  var obj={};
-  FIELDS.forEach(function(f){
-    if(f.type==='auto'||f.type==='actions')return;
-    if(f.type==='day'){obj[f.key]='';return;}
-    var el=document.getElementById('add_'+f.key);
-    obj[f.key]=el?el.value:'';
+  var r=getRecords(currentBatch);var obj={};
+  FIELDS.forEach(function(f){if(f.type==='auto'||f.type==='actions')return;if(f.type==='day'){obj[f.key]='';return}var el=document.getElementById('add_'+f.key);obj[f.key]=el?el.value:''});
+  r.push(obj);batchend();renderTable();closeModal()
+}
+function closeModal(){document.getElementById('modalOverlay').classList.remove('show')}
+document.getElementById('modalOverlay').onclick=function(e){if(e.target===this)closeModal()}
+
+function toggleImport(){
+  var area=document.getElementById('importArea');
+  area.classList.toggle('show');
+  if(!area.classList.contains('show')){closeImport()}
+}
+function closeImport(){document.getElementById('importArea').classList.remove('show');document.getElementById('importCsvPane').style.display='';document.getElementById('importExcelPane').style.display='none'}
+function showImportTab(tab){
+  document.getElementById('importCsvPane').style.display=tab==='csv'?'':'none';
+  document.getElementById('importExcelPane').style.display=tab==='excel'?'':'none'
+}
+
+// ===== Excel Import =====
+var parsedExcelData=null;
+var excelMapping=[];
+
+function handleExcelFile(evt){
+  var file=evt.target.files[0];if(!file)return;
+  document.getElementById('excelStatus').textContent='讀取中...';
+  var reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      var data=new Uint8Array(e.target.result);
+      var workbook=XLSX.read(data,{type:'array'});
+      var sheet=workbook.Sheets[workbook.SheetNames[0]];
+      var json=XLSX.utils.sheet_to_json(sheet,{defval:''});
+      parsedExcelData=json;
+      if(json.length===0){document.getElementById('excelStatus').textContent='檔案無資料';return}
+      document.getElementById('excelStatus').textContent='找到 '+json.length+' 列資料';
+      showExcelPreview(json);
+      showExcelMapping(json);
+    }catch(err){
+      document.getElementById('excelStatus').textContent='讀取失敗：'+err.message;
+    }
+  };
+  reader.readAsArrayBuffer(file)
+}
+
+function showExcelPreview(json){
+  var div=document.getElementById('excelPreview');
+  if(json.length===0){div.innerHTML='';return}
+  var keys=Object.keys(json[0]);
+  var h='<table><tr>'+keys.map(function(k){return '<th>'+k+'</th>'}).join('')+'</tr>';
+  var max=Math.min(json.length,10);
+  for(var i=0;i<max;i++){
+    h+='<tr>'+keys.map(function(k){return '<td>'+(json[i][k]||'')+'</td>'}).join('')+'</tr>'
+  }
+  if(json.length>10)h+='<tr><td colspan="'+keys.length+'" style="color:#999">...共 '+json.length+' 列</td></tr>';
+  h+='</table>';div.innerHTML=h
+}
+
+function showExcelMapping(json){
+  var div=document.getElementById('excelMapping');
+  var excelKeys=Object.keys(json[0]);
+  var fieldMap=[];
+  // Auto-detect mapping
+  var keywords={
+    parentName:['家長姓名','家長','父母','姓名','名字','家長名稱'],
+    lineName:['LINE','line','暱稱','line名稱'],
+    trialAccount:['體驗帳號','帳號','體驗','trial','account'],
+    phone:['連絡電話','電話','手機','phone','tel','聯絡電話','手機號碼'],
+    referrer:['推薦人','推薦','介紹人','referrer'],
+    childName:['孩子英文名','英文名','小孩英文','學生英文','child','英文名字','姓名+姓'],
+    childAge:['孩子年齡','年齡','age','歲','小孩年齡','學生年齡'],
+    appointment:['預約時間','預約','時間','預約日期','appointment'],
+    callRecord:['電聯紀錄','電聯','紀錄','聯繫紀錄','通話紀錄'],
+    intention:['購買意願','意願','購買意向','intention'],
+    purchase:['購買','是否購買','訂購','purchase'],
+    note:['備註','note','備注','註記'],
+    readingDays:['閱讀天數','天數','閱讀','reading'],
+    d1:['D1','d1','Day1','day1'],
+    d2:['D2','d2','Day2','day2'],
+    d3:['D3','d3','Day3','day3'],
+    d4:['D4','d4','Day4','day4'],
+    d5:['D5','d5','Day5','day5'],
+    d6:['D6','d6','Day6','day6'],
+    d7:['D7','d7','Day7','day7'],
+    col21:['備註2','column21','其他']
+  };
+  excelKeys.forEach(function(ek){
+    var matched=false;
+    for(var field in keywords){
+      if(fieldMap.some(function(fm){return fm.field===field}))continue;
+      for(var k=0;k<keywords[field].length;k++){
+        if(ek.indexOf(keywords[field][k])!==-1||keywords[field][k].indexOf(ek)!==-1){
+          fieldMap.push({excelKey:ek,field:field});matched=true;break
+        }
+      }
+      if(matched)break
+    }
+    if(!matched)fieldMap.push({excelKey:ek,field:''})
   });
-  recs.push(obj);
-  batchend();
-  renderTable();
-  closeModal();
-}
+  excelMapping=fieldMap;
 
-function closeModal(){
-  document.getElementById('modalOverlay').classList.remove('show');
-}
-
-// CSV Export
-function exportCSV(){
-  var recs=getRecords(currentBatch);
-  if(recs.length===0){alert('尚無資料可匯出');return;}
-  var cols=FIELDS.filter(function(f){return f.type!=='actions'});
-  var lines=[];
-  lines.push(cols.map(function(c){return '"'+c.label+'"'}).join(','));
-  recs.forEach(function(r){
-    var row=cols.map(function(c){
-      var v=r[c.key];
-      if(v===undefined||v===null)v='';
-      if(c.type==='day')v=(v===true||v==='✓')?'✓':'';
-      return '"'+String(v).replace(/"/g,'""')+'"';
+  var h='<p style="font-size:0.8rem;color:#666;margin-bottom:6px">欄位對應（可修改下拉選單）：</p>';
+  h+='<table style="width:100%;font-size:0.8rem"><tr><th>Excel 欄位</th><th>對應平台欄位</th></tr>';
+  fieldMap.forEach(function(fm){
+    h+='<tr><td>'+fm.excelKey+'</td><td><select class="map-select" data-excel="'+fm.excelKey+'" style="width:100%;padding:4px;border-radius:6px;border:1px solid #ddd">';
+    h+='<option value="">─ 不匯入 ─</option>';
+    FIELDS.forEach(function(f){
+      if(f.type==='auto'||f.type==='actions')return;
+      h+='<option value="'+f.key+'"'+(fm.field===f.key?'selected':'')+'>'+f.label+'</option>'
     });
-    lines.push(row.join(','));
+    h+='</select></td></tr>'
   });
-  var csv=lines.join('\n');
-  var blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
-  var a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);
-  var name=data.batches[currentBatch]?data.batches[currentBatch].name:'export';
-  a.download=name+'_學員資料.csv';
-  a.click();
-  URL.revokeObjectURL(a.href);
+  h+='</table>';
+  div.innerHTML=h;
+  document.getElementById('confirmExcelBtn').disabled=false;
+  // Attach change events
+  document.querySelectorAll('.map-select').forEach(function(sel){
+    sel.onchange=function(){
+      var ek=this.getAttribute('data-excel');
+      var fm=excelMapping.find(function(x){return x.excelKey===ek});
+      if(fm)fm.field=this.value
+    }
+  })
 }
 
-// CSV Import
-function importCSV(){
-  var text=document.getElementById('importText').value.trim();
-  if(!text){alert('請貼上 CSV 內容');return;}
-  var lines=text.split('\n').map(function(l){return l.trim()}).filter(function(l){return l});
-  if(lines.length<2){alert('至少需要標題列 + 一筆資料');return;}
-  var headers=parseCSVLine(lines[0]);
-  // Map Chinese headers to keys
-  var hMap={};
-  FIELDS.forEach(function(f){hMap[f.label]=f.key});
-  var keys=headers.map(function(h){return hMap[h]||null});
+function importExcel(){
+  if(!parsedExcelData||parsedExcelData.length===0){alert('請先上傳 Excel 檔案');return}
+  // Read current mapping from DOM
+  document.querySelectorAll('.map-select').forEach(function(sel){
+    var ek=sel.getAttribute('data-excel');
+    var fm=excelMapping.find(function(x){return x.excelKey===ek});
+    if(fm)fm.field=sel.value
+  });
   var recs=getRecords(currentBatch);
   var count=0;
-  for(var i=1;i<lines.length;i++){
-    var vals=parseCSVLine(lines[i]);
+  parsedExcelData.forEach(function(row){
     var obj={};
-    var valid=false;
-    keys.forEach(function(k,j){
-      if(!k)return;
-      var v=vals[j]||'';
-      // Check day fields
+    var hasData=false;
+    excelMapping.forEach(function(fm){
+      if(!fm.field)return;
+      var v=String(row[fm.excelKey]!==undefined?row[fm.excelKey]:'').trim();
+      // Check if it's a day field
       var isDay=false;
-      FIELDS.forEach(function(f){if(f.key===k&&f.type==='day')isDay=true;});
-      if(isDay)v=(v==='✓'||v==='true'||v==='1')?'✓':'';
-      obj[k]=v;
-      if(v)valid=true;
+      FIELDS.forEach(function(f){if(f.key===fm.field&&f.type==='day')isDay=true});
+      if(isDay)v=(v==='✓'||v==='1'||v==='true'||v==='TRUE'||v==='Yes'||v==='yes')?'✓':'';
+      obj[fm.field]=v;
+      if(v)hasData=true
     });
-    if(valid){recs.push(obj);count++;}
+    if(hasData){recs.push(obj);count++}
+  });
+  batchend();renderTable();
+  document.getElementById('excelFileInput').value='';
+  document.getElementById('excelPreview').innerHTML='';
+  document.getElementById('excelMapping').innerHTML='';
+  document.getElementById('confirmExcelBtn').disabled=true;
+  parsedExcelData=null;
+  closeImport();
+  alert('成功匯入 '+count+' 筆資料！')
+}
+
+// ===== CSV Import =====
+function importCSV(){
+  var text=document.getElementById('importText').value.trim();
+  if(!text){alert('請貼上 CSV 內容');return}
+  var lines=text.split('\n').map(function(l){return l.trim()}).filter(function(l){return l});
+  if(lines.length<2){alert('至少需要標題列+一筆資料');return}
+  var headers=parseCSVLine(lines[0]);
+  var hMap={};FIELDS.forEach(function(f){hMap[f.label]=f.key});
+  var keys=headers.map(function(h){return hMap[h]||null});
+  var recs=getRecords(currentBatch);var count=0;
+  for(var i=1;i<lines.length;i++){
+    var vals=parseCSVLine(lines[i]);var obj={};var valid=false;
+    keys.forEach(function(k,j){
+      if(!k)return;var v=vals[j]||'';
+      var isDay=false;FIELDS.forEach(function(f){if(f.key===k&&f.type==='day')isDay=true});
+      if(isDay)v=(v==='✓'||v==='true'||v==='1')?'✓':'';
+      obj[k]=v;if(v)valid=true
+    });
+    if(valid){recs.push(obj);count++}
   }
-  batchend();
-  renderTable();
-  document.getElementById('importText').value='';
-  document.getElementById('importArea').classList.remove('show');
-  alert('成功匯入 '+count+' 筆資料！');
+  batchend();renderTable();document.getElementById('importText').value='';closeImport();
+  alert('成功匯入 '+count+' 筆資料！')
 }
 
 function parseCSVLine(line){
   var result=[],current='',inQuote=false;
   for(var i=0;i<line.length;i++){
     var c=line[i];
-    if(inQuote){
-      if(c==='"'){
-        if(i+1<line.length&&line[i+1]==='"'){current+='"';i++;}
-        else inQuote=false;
-      }else current+=c;
-    }else{
-      if(c==='"')inQuote=true;
-      else if(c===','){result.push(current);current='';}
-      else current+=c;
-    }
+    if(inQuote){if(c==='"'){if(i+1<line.length&&line[i+1]==='"'){current+='"';i++}else inQuote=false}else current+=c}
+    else{if(c==='"')inQuote=true;else if(c===','){result.push(current);current=''}else current+=c}
   }
-  result.push(current);
-  return result;
+  result.push(current);return result
 }
 
-// Click outside modal to close
-document.getElementById('modalOverlay').onclick=function(e){
-  if(e.target===this)closeModal();
-};
+function exportCSV(){
+  var recs=getRecords(currentBatch);
+  if(recs.length===0){alert('尚無資料');return}
+  var cols=FIELDS.filter(function(f){return f.type!=='actions'});
+  var lines=[];lines.push(cols.map(function(c){return '"'+c.label+'"'}).join(','));
+  recs.forEach(function(r){
+    lines.push(cols.map(function(c){var v=r[c.key];if(v===undefined||v===null)v='';if(c.type==='day')v=(v===true||v==='✓')?'✓':'';return '"'+String(v).replace(/"/g,'""')+'"'}).join(','))
+  });
+  var blob=new Blob(['\uFEFF'+lines.join('\n')],{type:'text/csv;charset=utf-8'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=(data.batches[currentBatch]?data.batches[currentBatch].name:'export')+'_學員資料.csv';
+  a.click();URL.revokeObjectURL(a.href)
+}
 
 init();
 </script>
